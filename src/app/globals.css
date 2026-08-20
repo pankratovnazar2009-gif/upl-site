@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f2e9;
+  --bg-raised: #efe9db;
+  --fg: #12182a;
+  --fg-muted: #5b6478;
+  --fg-faint: #dcd4c2;
+  --accent: #8a5e12;
+  --accent-fg: #f6f2e9;
+  --brand-navy: #12182a;
+
+  --state-win: #3f7a4c;
+  --state-draw: #8a8370;
+  --state-loss: #b3452f;
+  --state-live: #c23b3b;
+
+  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-body: var(--font-onest), system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.83, 0, 0.17, 1);
+
+  --section-y: clamp(64px, 9vw, 140px);
+  --section-y-dense: clamp(40px, 5vw, 72px);
+  --gutter: clamp(20px, 4vw, 64px);
+}
+
+[data-theme="dark"] {
+  --bg: #0a0d14;
+  --bg-raised: #121722;
+  --fg: #edeef2;
+  --fg-muted: #98a0b2;
+  --fg-faint: #232838;
+  --accent: #c9a24b;
+  --accent-fg: #0a0d14;
+  --brand-navy: #0a0d14;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-brand-navy: var(--brand-navy);
+  --color-state-win: var(--state-win);
+  --color-state-draw: var(--state-draw);
+  --color-state-loss: var(--state-loss);
+  --color-state-live: var(--state-live);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --radius-none: 0px;
+  --radius-soft: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--fg-faint);
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  transition:
+    background-color 0.4s var(--ease-out),
+    color 0.4s var(--ease-out);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.hairline {
+  border-color: var(--fg-faint);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Masked line reveal — headline primitive from the design system */
+.line-mask {
+  display: block;
+  overflow: hidden;
+}
+.line-mask > * {
+  display: block;
+  transform: translateY(100%);
+}
+.line-mask.in > * {
+  transform: translateY(0);
+  transition: transform 0.9s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .line-mask > * {
+    transform: translateY(0) !important;
+  }
 }

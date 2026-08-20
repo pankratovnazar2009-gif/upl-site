@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "siteName": "UPL",
+    "siteNameFull": "Ukrainian Premier League",
+    "homeTitle": "Ukrainian Premier League — official site",
+    "homeDescription": "Standings, fixtures, news and clubs of the Ukrainian Premier League, 2026/27 season."
+  },
+  "nav": {
+    "home": "Home",
+    "tournament": "Tournament",
+    "clubs": "Clubs",
+    "toggleTheme": "Toggle theme",
+    "language": "Language"
+  },
+  "home": {
+    "kicker": "2026/27 Season",
+    "heroTitle": "The game that\nunites a country",
+    "heroSubtitle": "16 clubs. One trophy. The Ukrainian Premier League has been the top tier of Ukrainian football since 2008.",
+    "cta": "Standings",
+    "ctaSecondary": "All clubs",
+    "statClubs": "clubs",
+    "statSeasons": "seasons of history",
+    "statFounded": "founded",
+    "nextRound": "Next round",
+    "standingsTitle": "Standings",
+    "standingsSubtitle": "Current after round {round}",
+    "standingsCta": "Full table & fixtures",
+    "clubsTitle": "League clubs",
+    "clubsSubtitle": "2026/27 season — from Chernivtsi to Kharkiv",
+    "clubsCta": "All 16 clubs",
+    "aboutTitle": "More than a league",
+    "aboutBody": "The Association of Ukrainian Professional Football Clubs \"Premier League\" has existed since 2008. It's the top division of Ukrainian football — 16 clubs representing cities and communities across the country."
+  },
+  "standings": {
+    "title": "Tournament",
+    "subtitle": "Ukrainian Premier League table and fixtures, 2026/27 season",
+    "tabTable": "Table",
+    "tabSchedule": "Fixtures",
+    "colPos": "#",
+    "colClub": "Club",
+    "colPlayed": "P",
+    "colWins": "W",
+    "colDraws": "D",
+    "colLosses": "L",
+    "colGoals": "Goals",
+    "colDiff": "GD",
+    "colPoints": "Pts",
+    "colForm": "Form",
+    "round": "Round",
+    "live": "LIVE",
+    "finished": "Finished",
+    "scheduled": "Scheduled",
+    "sourceNote": "Data synced from the official UPL source",
+    "updatedAt": "Updated"
+  },
+  "clubs": {
+    "title": "Clubs",
+    "subtitle": "16 teams of the Ukrainian Premier League, 2026/27 season",
+    "founded": "Founded",
+    "stadium": "Stadium",
+    "president": "President",
+    "official": "Official site",
+    "viewClub": "Club profile"
+  },
+  "footer": {
+    "org": "PREMIER LEAGUE LLC",
+    "address": "23-B Velyka Vasylkivska St, Kyiv",
+    "rights": "All rights reserved",
+    "sourceNote": "Data and facts sourced from the official UPL site (upl.ua)"
+  },
+  "common": {
+    "loading": "Loading…",
+    "vs": "—"
+  }
+}

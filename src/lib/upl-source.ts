@@ -1,0 +1,211 @@
+import * as cheerio from "cheerio";
+import { clubs } from "@/data/clubs";
+
+/**
+ * Server-side live data layer.
+ *
+ * upl.ua has no public JSON API, but its tournament pages are plain
+ * server-rendered HTML (verified by inspecting the raw response — no client
+ * JS needed). We fetch and parse those pages here, cached via Next's fetch
+ * `revalidate` so we poll upl.ua at most once every few minutes, not per
+ * request. On any failure we return null and callers fall back to a static
+ * snapshot (see src/data/*-fallback.ts) so the site never shows a broken page.
+ */
+
+const BASE = "https://upl.ua";
+const FALLBACK_SEASON_ID = 432; // 2026/27 — used only if season-id lookup fails
+const REVALIDATE_SECONDS = 300;
+
+const FETCH_HEADERS = {
+  "User-Agent":
+    "UPLConceptSite/1.0 (+redesign concept; respectful low-frequency fetch)",
+};
+
+const uplIdToSlug = new Map(clubs.map((c) => [c.uplId, c.slug]));
+const nameToSlug = new Map(clubs.map((c) => [c.name.uk, c.slug]));
+
+async function fetchHtml(path: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      headers: FETCH_HEADERS,
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
+}
+
+async function getCurrentSeasonId(): Promise<number> {
+  const html = await fetchHtml("/ua/tournaments/games");
+  if (!html) return FALLBACK_SEASON_ID;
+  const $ = cheerio.load(html);
+  const val = $("select[name='id'] option[selected]").attr("value");
+  const id = val ? Number(val) : NaN;
+  return Number.isFinite(id) ? id : FALLBACK_SEASON_ID;
+}
+
+export type StandingsRow = {
+  position: number;
+  slug: string | null;
+  fullName: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDiff: number;
+  points: number;
+};
+
+export type StandingsResult = {
+  rows: StandingsRow[];
+  fetchedAt: string;
+  seasonId: number;
+};
+
+export async function getStandings(): Promise<StandingsResult | null> {
+  const seasonId = await getCurrentSeasonId();
+  const html = await fetchHtml(`/ua/tournaments/championship/${seasonId}/table`);
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  const rows: StandingsRow[] = [];
+
+  $("table.table-num tbody tr").each((_, el) => {
+    const tds = $(el).find("td");
+    if (tds.length < 10) return;
+    const nameLink = $(el).find("a[href^='/ua/clubs/view/']");
+    const uplId = Number((nameLink.attr("href") || "").split("/").pop());
+    const num = (i: number) => Number($(tds[i]).text().trim()) || 0;
+
+    rows.push({
+      position: num(0),
+      slug: uplIdToSlug.get(uplId) ?? null,
+      fullName: nameLink.text().trim(),
+      played: num(2),
+      wins: num(3),
+      draws: num(4),
+      losses: num(5),
+      goalsFor: num(6),
+      goalsAgainst: num(7),
+      goalDiff: num(8),
+      points: num(9),
+    });
+  });
+
+  if (rows.length === 0) return null;
+  return { rows, fetchedAt: new Date().toISOString(), seasonId };
+}
+
+export type ScheduleMatch = {
+  date: string; // DD.MM.YYYY as published
+  homeSlug: string | null;
+  homeName: string;
+  awaySlug: string | null;
+  awayName: string;
+  status: "finished" | "scheduled";
+  score: { home: number; away: number } | null;
+  time: string | null;
+  reportUrl: string | null;
+};
+
+export type ScheduleRound = {
+  round: number;
+  matches: ScheduleMatch[];
+};
+
+export type ScheduleResult = {
+  rounds: ScheduleRound[];
+  fetchedAt: string;
+  seasonId: number;
+};
+
+export async function getSchedule(): Promise<ScheduleResult | null> {
+  const seasonId = await getCurrentSeasonId();
+  const html = await fetchHtml(
+    `/ua/tournaments/championship/${seasonId}/calendar`,
+  );
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  const rounds: ScheduleRound[] = [];
+
+  $(".table-tour").each((_, tourEl) => {
+    const title = $(tourEl).find(".tour-title").text().trim();
+    const round = Number((title.match(/(\d+)/) || [])[1]) || 0;
+    const matches: ScheduleMatch[] = [];
+    let currentDate = "";
+
+    $(tourEl)
+      .children()
+      .each((_, child) => {
+        const $child = $(child);
+        if ($child.hasClass("tour-date")) {
+          currentDate = $child.text().trim();
+          return;
+        }
+        if (!$child.hasClass("tour-match")) return;
+
+        const homeName = $child.find(".first-team").text().trim();
+        const awayName = $child.find(".second-team").text().trim();
+        const resultText = $child.find(".resualt a").text().trim();
+        const reportHref = $child.find(".resualt a").attr("href") || null;
+        // Scores are rendered "2 : 0" (spaces around the colon). Kickoff
+        // times are "15:30" (no spaces) — the space is the only thing that
+        // reliably tells them apart, since both are otherwise \d+:\d+.
+        const scoreMatch = resultText.match(/^(\d+)\s+:\s+(\d+)$/);
+
+        matches.push({
+          date: currentDate,
+          homeSlug: nameToSlug.get(homeName) ?? null,
+          homeName,
+          awaySlug: nameToSlug.get(awayName) ?? null,
+          awayName,
+          status: scoreMatch ? "finished" : "scheduled",
+          score: scoreMatch
+            ? { home: Number(scoreMatch[1]), away: Number(scoreMatch[2]) }
+            : null,
+          time: scoreMatch ? null : resultText || null,
+          reportUrl: reportHref,
+        });
+      });
+
+    if (matches.length > 0) rounds.push({ round, matches });
+  });
+
+  if (rounds.length === 0) return null;
+  return { rounds, fetchedAt: new Date().toISOString(), seasonId };
+}
+
+function parseUplDate(date: string): number {
+  // "DD.MM.YYYY" -> sortable timestamp. Invalid/missing dates sort last.
+  const m = date.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return Number.POSITIVE_INFINITY;
+  const [, d, mo, y] = m;
+  return Date.UTC(Number(y), Number(mo) - 1, Number(d));
+}
+
+/**
+ * The round to show by default. Rounds keep their original number even when
+ * a single match inside them is postponed to a much later date (this
+ * happens on upl.ua — e.g. a round-1 fixture replayed in December) so we
+ * can't just take the first round with any "scheduled" match in it. Instead
+ * we find the chronologically nearest upcoming match across the whole
+ * schedule and use its round.
+ */
+export function findCurrentRound(rounds: ScheduleRound[]): ScheduleRound | null {
+  let best: { round: ScheduleRound; date: number } | null = null;
+
+  for (const round of rounds) {
+    for (const match of round.matches) {
+      if (match.status !== "scheduled") continue;
+      const date = parseUplDate(match.date);
+      if (!best || date < best.date) best = { round, date };
+    }
+  }
+
+  return best?.round ?? rounds[rounds.length - 1] ?? null;
+}
