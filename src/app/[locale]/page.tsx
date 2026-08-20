@@ -1,13 +1,14 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, findCurrentRound } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs, getClubBySlug } from "@/data/clubs";
 import { StandingsTable } from "@/components/standings-table";
 import { SplitHeading } from "@/components/motion/split-heading";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { Counter } from "@/components/motion/counter";
+import { NewsHero } from "@/components/news-hero";
 
 export const revalidate = 300;
 
@@ -15,23 +16,26 @@ export default async function HomePage() {
   const t = await getTranslations("home");
   const locale = (await getLocale()) as "uk" | "en";
 
-  const [standings, schedule] = await Promise.all([getStandings(), getSchedule()]);
+  const [standings, schedule, featuredNews] = await Promise.all([
+    getStandings(),
+    getSchedule(),
+    getFeaturedNews(3),
+  ]);
   const standingsData = standings ?? standingsFallback;
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
 
   return (
     <div>
-      {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-16 pb-(--section-y) sm:pt-24">
-        <p className="text-label uppercase tracking-[0.14em] text-accent">
-          {t("kicker")}
-        </p>
+      {featuredNews && featuredNews.length > 0 && <NewsHero items={featuredNews} />}
+
+      {/* Brand statement */}
+      <section className="mx-auto max-w-[1200px] px-(--gutter) py-(--section-y-dense)">
         <SplitHeading
           text={t("heroTitle")}
-          className="font-display mt-4 text-[clamp(2.75rem,8vw,6.5rem)] font-bold leading-[0.95]"
+          className="font-display text-[clamp(2rem,5.5vw,4.25rem)] font-bold leading-[0.98]"
         />
-        <Reveal delay={0.35} className="mt-8 max-w-lg">
+        <Reveal delay={0.25} className="mt-6 max-w-lg">
           <p className="text-[16px] leading-relaxed text-fg-muted">
             {t("heroSubtitle")}
           </p>
@@ -52,8 +56,8 @@ export default async function HomePage() {
         </Reveal>
 
         <Reveal
-          delay={0.15}
-          className="mt-16 grid grid-cols-3 gap-6 border-t border-fg-faint pt-8 sm:max-w-xl"
+          delay={0.1}
+          className="mt-14 grid grid-cols-3 gap-6 border-t border-fg-faint pt-8 sm:max-w-xl"
         >
           <div>
             <Counter

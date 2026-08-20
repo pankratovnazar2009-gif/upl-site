@@ -260,3 +260,25 @@ export async function getNews(limit = 9): Promise<NewsResult | null> {
   if (items.length === 0) return null;
   return { items, fetchedAt: new Date().toISOString() };
 }
+
+/**
+ * Same as getNews, but swaps each item's small list thumbnail for the larger
+ * ~900x540 lead image published on its own article page — worth the extra
+ * fetches only for a handful of "featured" items (e.g. a hero carousel).
+ */
+export async function getFeaturedNews(count = 3): Promise<NewsItem[] | null> {
+  const base = await getNews(count);
+  if (!base) return null;
+
+  const withBigImages = await Promise.all(
+    base.items.slice(0, count).map(async (item) => {
+      const articleHtml = await fetchHtml(`/ua/news/view/${item.id}`);
+      if (!articleHtml) return item;
+      const $ = cheerio.load(articleHtml);
+      const bigImg = $(".top-image-news img").first().attr("src");
+      return bigImg ? { ...item, image: `${BASE}${bigImg}` } : item;
+    }),
+  );
+
+  return withBigImages;
+}
