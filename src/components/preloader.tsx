@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const STORAGE_KEY = "upl-preloader-shown";
 const MIN_MS = 900; // always a deliberate brand moment, even on a fast load
 const HARD_CAP_MS = 2200; // never make a visitor stare at this longer than ~2.2s
 const EASE_INOUT: [number, number, number, number] = [0.83, 0, 0.17, 1];
@@ -12,8 +11,10 @@ const EASE_INOUT: [number, number, number, number] = [0.83, 0, 0.17, 1];
 /**
  * A real (not faked) loading screen: the percentage climbs quickly to ~92%,
  * then holds until the page has actually finished loading (or the hard cap
- * is hit), so it never lies about being "done" before the page is. Shown
- * once per browser session — not on every internal navigation.
+ * is hit), so it never lies about being "done" before the page is. Runs on
+ * every real page load, including a reload — it only mounts once per actual
+ * browser navigation, since clicking an internal <Link> doesn't remount the
+ * root layout.
  */
 export function Preloader() {
   const reduced = useReducedMotion();
@@ -24,19 +25,12 @@ export function Preloader() {
 
   useEffect(() => {
     if (reduced) return;
-    try {
-      if (sessionStorage.getItem(STORAGE_KEY) === "1") return;
-      sessionStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      return;
-    }
     setShouldRun(true);
   }, [reduced]);
 
   useEffect(() => {
     if (!shouldRun) return;
 
-    const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
 
     let ready = document.readyState === "complete";
@@ -54,10 +48,7 @@ export function Preloader() {
       const canFinish = elapsed >= MIN_MS && (ready || elapsed >= HARD_CAP_MS);
       const ceiling = canFinish ? 100 : Math.min(eased * 92, 92);
 
-      setProgress((p) => {
-        const next = Math.max(p, Math.round(ceiling));
-        return next > 100 ? 100 : next;
-      });
+      setProgress((p) => Math.min(100, Math.max(p, Math.round(ceiling))));
 
       if (ceiling >= 100) {
         setDone(true);
@@ -70,14 +61,20 @@ export function Preloader() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener("load", markReady);
-      document.documentElement.style.overflow = previousOverflow;
     };
   }, [shouldRun]);
 
   if (!shouldRun) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        // Only unlock scroll once the overlay has actually finished fading
+        // out — releasing it at `done` would let the page scroll underneath
+        // a still-visible panel.
+        document.documentElement.style.overflow = "";
+      }}
+    >
       {!done && (
         <motion.div
           key="preloader"
