@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Ties Tailwind's `dark:` variant to our own [data-theme] attribute
+   (set by theme-script.tsx / theme-toggle.tsx) instead of prefers-color-scheme. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --bg: #f6f2e9;
   --bg-raised: #efe9db;

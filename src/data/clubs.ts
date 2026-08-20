@@ -12,6 +12,10 @@ export type Club = {
   /** upl.ua internal club id — /ua/clubs/view/{uplId} */
   uplId: number;
   logo: string;
+  /** True for crests with no light/white ink at all (e.g. solid black) — they
+   *  need to be force-inverted to white in dark theme or they vanish against
+   *  the dark canvas, even outside the monochrome grid contexts. */
+  monochromeDark?: boolean;
   city: { uk: string; en: string };
   name: { uk: string; en: string };
   founded: string;
@@ -207,6 +211,7 @@ export const clubs: Club[] = [
     slug: "kolos",
     uplId: 1806,
     logo: "/logos/clubs/kolos.png",
+    monochromeDark: true,
     city: { uk: "Ковалівка", en: "Kovalivka" },
     name: { uk: "Колос", en: "Kolos Kovalivka" },
     founded: "2012",

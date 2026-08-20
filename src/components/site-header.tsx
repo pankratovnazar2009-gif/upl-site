@@ -32,7 +32,7 @@ export function SiteHeader() {
             alt="УПЛ"
             width={30}
             height={30}
-            className="h-7 w-7 object-contain"
+            className="h-7 w-7 object-contain dark:brightness-0 dark:invert"
             priority
           />
           <span className="hidden sm:inline">УПЛ</span>

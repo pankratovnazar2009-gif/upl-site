@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeScript } from "@/components/theme-script";
+import { Preloader } from "@/components/preloader";
 import "../globals.css";
 
 const unbounded = Unbounded({
@@ -59,6 +60,7 @@ export default async function LocaleLayout({
       </head>
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <NextIntlClientProvider>
+          <Preloader />
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
