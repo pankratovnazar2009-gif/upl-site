@@ -1,3 +1,11 @@
+export type Legend = {
+  name: string;
+  years: string;
+  note: { uk: string; en: string };
+  /** Path in /public/legends/{slug}.jpg — omitted until a real photo is supplied. */
+  photo?: string;
+};
+
 export type Club = {
   /** URL slug, also the logo filename stem in /public/logos/clubs */
   slug: string;
@@ -7,11 +15,16 @@ export type Club = {
   city: { uk: string; en: string };
   name: { uk: string; en: string };
   founded: string;
+  /** Set only when the current club is a formal revival of an older, dissolved one. */
+  refounded?: string;
   leaderRole: { uk: string; en: string };
   leaderName: string;
   coach: string;
   stadium: string;
   officialSite: string;
+  /** Empty array is the honest, correct value for clubs with no national titles yet. */
+  honours: { uk: string; en: string }[];
+  legends: Legend[];
 };
 
 export const clubs: Club[] = [
@@ -27,6 +40,8 @@ export const clubs: Club[] = [
     coach: "Сергій Шищенко",
     stadium: '"Україна" (Чернівці)',
     officialSite: "bukfc.com",
+    honours: [],
+    legends: [],
   },
   {
     slug: "veres",
@@ -40,6 +55,20 @@ export const clubs: Club[] = [
     coach: "Олег Шандрук",
     stadium: '"Авангард" (Рівне)',
     officialSite: "nkveres.com",
+    honours: [
+      { uk: "Півфіналіст Кубка України, 1993/94", en: "Ukrainian Cup semi-finalist, 1993/94" },
+      { uk: "Переможець Першої ліги, 1992 і 2020/21", en: "First League champions, 1992 and 2020/21" },
+    ],
+    legends: [
+      {
+        name: "Володимир Чирков",
+        years: "1970s–1980s",
+        note: {
+          uk: "Найкращий бомбардир в історії клубу — 88 голів, включно з рекордом сезону (25 голів, 1980 рік).",
+          en: "Club's all-time top scorer with 88 goals, including a single-season record of 25 goals in 1980.",
+        },
+      },
+    ],
   },
   {
     slug: "dynamo",
@@ -53,6 +82,47 @@ export const clubs: Club[] = [
     coach: "Ігор Костюк",
     stadium: 'Стадіон "Динамо" ім. В. Лобановського',
     officialSite: "fcdynamo.com",
+    honours: [
+      { uk: "17-разовий чемпіон України", en: "17-time Ukrainian champions" },
+      { uk: "14-разовий володар Кубка України", en: "14-time Ukrainian Cup winners" },
+      { uk: "9-разовий володар Суперкубка України", en: "9-time Ukrainian Super Cup winners" },
+      { uk: "13-разовий чемпіон СРСР", en: "13-time USSR champions" },
+      { uk: "Володар Кубка володарів кубків УЄФА — 1975, 1986", en: "European Cup Winners' Cup — 1975, 1986" },
+    ],
+    legends: [
+      {
+        name: "Валерій Лобановський",
+        years: "1973–1990, 1997–2002",
+        note: {
+          uk: "Легендарний тренер, що привів клуб до перемоги в Кубку кубків УЄФА 1975 року й побудував золоту епоху європейського футболу СРСР.",
+          en: "Legendary coach who led the club to the 1975 European Cup Winners' Cup and built its golden European era.",
+        },
+      },
+      {
+        name: "Олег Блохін",
+        years: "1969–1988",
+        note: {
+          uk: "Володар «Золотого м'яча» 1975 року, символ атакувальної гри «Динамо» тієї епохи.",
+          en: "1975 Ballon d'Or winner, symbol of Dynamo's attacking football in that era.",
+        },
+      },
+      {
+        name: "Ігор Бєланов",
+        years: "1985–1995",
+        note: {
+          uk: "Володар «Золотого м'яча» 1986 року.",
+          en: "1986 Ballon d'Or winner.",
+        },
+      },
+      {
+        name: "Андрій Шевченко",
+        years: "1994–1999",
+        note: {
+          uk: "Виріс у зірку світового рівня в «Динамо», перш ніж перейти до «Мілана»; один із найвідоміших українських футболістів в історії.",
+          en: "Grew into a world-class striker at Dynamo before his transfer to Milan; one of the most recognisable Ukrainian footballers in history.",
+        },
+      },
+    ],
   },
   {
     slug: "epicentr",
@@ -66,6 +136,8 @@ export const clubs: Club[] = [
     coach: "Сергій Нагорняк",
     stadium: 'Тернопільський міський стадіон ім. Р. Шухевича',
     officialSite: "fcepicentr.com.ua",
+    honours: [],
+    legends: [],
   },
   {
     slug: "zorya",
@@ -79,6 +151,21 @@ export const clubs: Club[] = [
     coach: "Віктор Скрипник",
     stadium: 'Стадіон "Динамо" ім. В. Лобановського',
     officialSite: "fczorya.com",
+    honours: [
+      { uk: "Чемпіон СРСР, 1972", en: "USSR champions, 1972" },
+      { uk: "Фіналіст Кубка СРСР, 1974 і 1975", en: "USSR Cup finalists, 1974 and 1975" },
+      { uk: "Найкращий результат в УПЛ — 3-тє місце (2016/17, 2019/20, 2020/21, 2022/23)", en: "Best UPL finish — 3rd place (2016/17, 2019/20, 2020/21, 2022/23)" },
+    ],
+    legends: [
+      {
+        name: "Йожеф Сабо",
+        years: "1970s",
+        note: {
+          uk: "Ключовий гравець чемпіонського складу 1972 року.",
+          en: "Key player of the 1972 championship-winning squad.",
+        },
+      },
+    ],
   },
   {
     slug: "karpaty",
@@ -92,6 +179,29 @@ export const clubs: Club[] = [
     coach: "Франсіско Хав'єр Фернандес Діас",
     stadium: '"Україна" (Львів)',
     officialSite: "fckarpaty.org.ua",
+    honours: [
+      { uk: "Володар Кубка СРСР, 1969 — єдиний клуб поза вищою лігою, що це зробив", en: "USSR Cup winners, 1969 — the only club outside the top division ever to win it" },
+      { uk: "Бронза чемпіонату України, 1997/98 — найвище досягнення в незалежній Україні", en: "Ukrainian championship bronze, 1997/98 — the club's best finish in independent Ukraine" },
+      { uk: "Фіналіст Кубка України, 1992/93 і 1998/99", en: "Ukrainian Cup finalists, 1992/93 and 1998/99" },
+    ],
+    legends: [
+      {
+        name: "Володимир Данилюк",
+        years: "1960s–1970s",
+        note: {
+          uk: "Рекордсмен клубу за кількістю голів — 88, рекорд не побитий і донині.",
+          en: "Club's all-time top scorer with 88 goals, a record that still stands.",
+        },
+      },
+      {
+        name: "Мирон Маркевич",
+        years: "1990s",
+        note: {
+          uk: "Тренер, що привів «Карпати» до бронзи 1997/98 і двох фіналів Кубка України.",
+          en: "The coach behind the 1997/98 bronze medal and two Ukrainian Cup finals.",
+        },
+      },
+    ],
   },
   {
     slug: "kolos",
@@ -105,6 +215,20 @@ export const clubs: Club[] = [
     coach: "Руслан Костишин",
     stadium: '"Колос" (Ковалівка)',
     officialSite: "koloskovalivka.com",
+    honours: [
+      { uk: "Найменше за населенням село в історії України, що мало клуб елітного дивізіону (з 2019 року)", en: "The smallest village ever to field a club in Ukraine's top division (since 2019)" },
+      { uk: "Переможець грецького «Аріса» в Лізі Європи УЄФА, 2020/21", en: "Beat Greek side Aris in the UEFA Europa League, 2020/21" },
+    ],
+    legends: [
+      {
+        name: "Олександр Бондаренко",
+        years: "2016–2021",
+        note: {
+          uk: "Найкращий бомбардир в історії клубу — 48 голів.",
+          en: "Club's all-time top scorer with 48 goals.",
+        },
+      },
+    ],
   },
   {
     slug: "kryvbas",
@@ -112,12 +236,18 @@ export const clubs: Club[] = [
     logo: "/logos/clubs/kryvbas.png",
     city: { uk: "Кривий Ріг", en: "Kryvyi Rih" },
     name: { uk: "Кривбас", en: "Kryvbas" },
-    founded: "2020",
+    founded: "1959",
+    refounded: "2020",
     leaderRole: { uk: "Президент", en: "President" },
     leaderName: "Костянтин Караманіц",
     coach: "Патрік Йоханнес ван Леувен",
     stadium: '"Гірник" (Кривий Ріг)',
     officialSite: "fckryvbas.com",
+    honours: [
+      { uk: "4-разовий чемпіон УРСР — 1971, 1972, 1976, 1981", en: "4-time Ukrainian SSR champions — 1971, 1972, 1976, 1981" },
+      { uk: "Бронза чемпіонату України, 1998/99, 1999/2000 (старий клуб) і 2023/24 (сучасний клуб)", en: "Ukrainian championship bronze, 1998/99, 1999/2000 (original club) and 2023/24 (current club)" },
+    ],
+    legends: [],
   },
   {
     slug: "kudrivka",
@@ -131,6 +261,8 @@ export const clubs: Club[] = [
     coach: "Євген Задорожній",
     stadium: '"Авангард"',
     officialSite: "fckudrivka.com",
+    honours: [],
+    legends: [],
   },
   {
     slug: "livyi-bereh",
@@ -144,6 +276,8 @@ export const clubs: Club[] = [
     coach: "Олександр Рябоконь",
     stadium: '"Арена Лівий Берег" (Київ)',
     officialSite: "fclb.com.ua",
+    honours: [],
+    legends: [],
   },
   {
     slug: "lnz",
@@ -157,6 +291,8 @@ export const clubs: Club[] = [
     coach: "Віталій Пономарьов",
     stadium: '"Черкаси-Арена"',
     officialSite: "fc-lnz.com",
+    honours: [],
+    legends: [],
   },
   {
     slug: "obolon",
@@ -170,6 +306,8 @@ export const clubs: Club[] = [
     coach: "Олександр Антоненко",
     stadium: '"Оболонь Арена" (Київ)',
     officialSite: "fc.obolon.ua",
+    honours: [],
+    legends: [],
   },
   {
     slug: "polissya",
@@ -183,6 +321,12 @@ export const clubs: Club[] = [
     coach: "Руслан Ротань",
     stadium: 'Центральний міський стадіон "Полісся" (Житомир)',
     officialSite: "polissyafc.com",
+    honours: [
+      { uk: "Чемпіон УРСР, 1967 (як «Автомобіліст»)", en: "Ukrainian SSR champions, 1967 (as \"Avtomobilist\")" },
+      { uk: "Володар Кубка УРСР, 1972 і 1990", en: "Ukrainian SSR Cup winners, 1972 and 1990" },
+      { uk: "Бронза УПЛ, 2025/26 — перша медаль в історії клубу", en: "UPL bronze, 2025/26 — the club's first-ever medal" },
+    ],
+    legends: [],
   },
   {
     slug: "kharkiv",
@@ -196,6 +340,8 @@ export const clubs: Club[] = [
     coach: "Младен Бартуловіч",
     stadium: '"Арена Лівий Берег" (Київ)',
     officialSite: "fckharkiv.com",
+    honours: [],
+    legends: [],
   },
   {
     slug: "chornomorets",
@@ -209,6 +355,29 @@ export const clubs: Club[] = [
     coach: "Роман Григорчук",
     stadium: '"Чорноморець" (Одеса)',
     officialSite: "chornomorets.ua",
+    honours: [
+      { uk: "Володар Кубка України, 1992 і 1994", en: "Ukrainian Cup winners, 1992 and 1994" },
+      { uk: "Срібло чемпіонату України, 1995 і 1996", en: "Ukrainian championship silver, 1995 and 1996" },
+      { uk: "Бронза чемпіонату СРСР, 1974", en: "USSR championship bronze, 1974" },
+    ],
+    legends: [
+      {
+        name: "Валерій Лобановський",
+        years: "1965–1967",
+        note: {
+          uk: "Перейшов із київського «Динамо»; згодом став одним із найвидатніших тренерів в історії радянського футболу.",
+          en: "Joined from Kyiv Dynamo; later became one of the most celebrated coaches in Soviet football history.",
+        },
+      },
+      {
+        name: "Ілля Цимбаларь",
+        years: "1990s",
+        note: {
+          uk: "Зірка нападу «золотої» команди Одеси початку 1990-х.",
+          en: "Star forward of Odesa's golden-era side of the early 1990s.",
+        },
+      },
+    ],
   },
   {
     slug: "shakhtar",
@@ -222,6 +391,38 @@ export const clubs: Club[] = [
     coach: "Арда Туран",
     stadium: '"Арена Львів"',
     officialSite: "shakhtar.com",
+    honours: [
+      { uk: "16-разовий чемпіон України", en: "16-time Ukrainian champions" },
+      { uk: "15-разовий володар Кубка України", en: "15-time Ukrainian Cup winners" },
+      { uk: "9-разовий володар Суперкубка України", en: "9-time Ukrainian Super Cup winners" },
+      { uk: "Володар Кубка УЄФА, 2009", en: "UEFA Cup winners, 2009" },
+    ],
+    legends: [
+      {
+        name: "Мірча Луческу",
+        years: "2004–2016",
+        note: {
+          uk: "Румунський тренер, що побудував золоту епоху клубу: п'ять чемпіонств і перемога в Кубку УЄФА 2009 року.",
+          en: "The Romanian coach who built the club's golden era: five championships and the 2009 UEFA Cup.",
+        },
+      },
+      {
+        name: "Дарійо Срна",
+        years: "2003–2014",
+        note: {
+          uk: "Багаторічний капітан, учасник переможного фіналу Кубка УЄФА 2009 року.",
+          en: "Long-serving captain, part of the 2009 UEFA Cup-winning squad.",
+        },
+      },
+      {
+        name: "Віталій Старухін",
+        years: "1970s",
+        note: {
+          uk: "Найкращий футболіст СРСР 1979 року за версією преси, 26 голів за сезон.",
+          en: "Voted USSR's best footballer in 1979 by the Soviet press, with 26 goals that season.",
+        },
+      },
+    ],
   },
 ];
 

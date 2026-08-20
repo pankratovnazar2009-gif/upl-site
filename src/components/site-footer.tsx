@@ -36,6 +36,39 @@ export async function SiteFooter() {
             <Link href="/clubs" className="transition-colors hover:text-fg">
               {nav("clubs")}
             </Link>
+            <Link href="/news" className="transition-colors hover:text-fg">
+              {nav("news")}
+            </Link>
+            <Link href="/about" className="transition-colors hover:text-fg">
+              {nav("about")}
+            </Link>
+          </nav>
+
+          <nav className="flex gap-8 text-[13px] uppercase tracking-[0.06em] text-fg-muted">
+            <a
+              href="https://tv.upl.ua/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-fg"
+            >
+              UPL.TV
+            </a>
+            <a
+              href="https://upl.ua/ua/photo-galleries"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-fg"
+            >
+              {t("gallery")}
+            </a>
+            <a
+              href="https://upl.ua/ua/pages/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-fg"
+            >
+              {t("documents")}
+            </a>
           </nav>
         </div>
 

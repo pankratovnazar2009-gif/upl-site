@@ -209,3 +209,54 @@ export function findCurrentRound(rounds: ScheduleRound[]): ScheduleRound | null 
 
   return best?.round ?? rounds[rounds.length - 1] ?? null;
 }
+
+export type NewsItem = {
+  id: number;
+  title: string;
+  /** Short lead-in blurb as published — a one-sentence teaser, not the article body. */
+  excerpt: string;
+  date: string;
+  image: string | null;
+  sourceUrl: string;
+};
+
+export type NewsResult = {
+  items: NewsItem[];
+  fetchedAt: string;
+};
+
+/**
+ * Latest headlines. We only ever show upl.ua's own short teaser sentence and
+ * link back to the original for the full article — never the article body —
+ * to stay well clear of reproducing their editorial content.
+ */
+export async function getNews(limit = 9): Promise<NewsResult | null> {
+  const html = await fetchHtml("/ua/news/index");
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  const items: NewsItem[] = [];
+
+  $(".item-news").each((_, el) => {
+    if (items.length >= limit) return;
+    const $el = $(el);
+    const link = $el.find(".news-title a");
+    const href = link.attr("href") || "";
+    const id = Number(href.split("/").pop());
+    if (!id) return;
+
+    const img = $el.find(".image img").attr("src") || null;
+
+    items.push({
+      id,
+      title: link.text().trim(),
+      excerpt: $el.find(".text").text().trim(),
+      date: $el.find(".date").text().trim(),
+      image: img ? `${BASE}${img}` : null,
+      sourceUrl: `${BASE}${href}`,
+    });
+  });
+
+  if (items.length === 0) return null;
+  return { items, fetchedAt: new Date().toISOString() };
+}

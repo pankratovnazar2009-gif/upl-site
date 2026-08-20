@@ -9,6 +9,8 @@
     "home": "Home",
     "tournament": "Tournament",
     "clubs": "Clubs",
+    "news": "News",
+    "about": "About",
     "toggleTheme": "Toggle theme",
     "language": "Language"
   },
@@ -57,16 +59,35 @@
     "title": "Clubs",
     "subtitle": "16 teams of the Ukrainian Premier League, 2026/27 season",
     "founded": "Founded",
+    "refounded": "Refounded",
     "stadium": "Stadium",
     "president": "President",
     "official": "Official site",
-    "viewClub": "Club profile"
+    "viewClub": "Club profile",
+    "honoursTitle": "Honours",
+    "noHonours": "Still building its way to a first top-flight honour.",
+    "legendsTitle": "Club legends",
+    "backToClubs": "All clubs"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "The latest from the Ukrainian Premier League",
+    "readMore": "Read on upl.ua",
+    "sourceNote": "Headlines and teasers are synced from the official UPL site; full articles are linked out"
+  },
+  "about": {
+    "title": "About UPL",
+    "subtitle": "The Ukrainian Premier League is a self-governed association of clubs running the top tier of Ukrainian football.",
+    "timelineTitle": "How it started",
+    "leadershipTitle": "UPL leadership"
   },
   "footer": {
     "org": "PREMIER LEAGUE LLC",
     "address": "23-B Velyka Vasylkivska St, Kyiv",
     "rights": "All rights reserved",
-    "sourceNote": "Data and facts sourced from the official UPL site (upl.ua)"
+    "sourceNote": "Data and facts sourced from the official UPL site (upl.ua)",
+    "gallery": "Gallery",
+    "documents": "Documents"
   },
   "common": {
     "loading": "Loading…",

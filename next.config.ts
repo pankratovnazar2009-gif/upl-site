@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     qualities: [75, 90],
     remotePatterns: [
       { protocol: "https", hostname: "upload.wikimedia.org" },
+      { protocol: "https", hostname: "upl.ua" },
     ],
   },
 };

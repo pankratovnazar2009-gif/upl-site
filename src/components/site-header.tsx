@@ -16,6 +16,8 @@ export function SiteHeader() {
     { href: "/", label: t("home") },
     { href: "/tournament", label: t("tournament") },
     { href: "/clubs", label: t("clubs") },
+    { href: "/news", label: t("news") },
+    { href: "/about", label: t("about") },
   ];
 
   return (
