@@ -61,7 +61,7 @@ export async function StandingsTable({
                         alt=""
                         width={22}
                         height={22}
-                        className="h-[22px] w-[22px] shrink-0 object-contain dark:brightness-0 dark:invert"
+                        className={`h-[22px] w-[22px] shrink-0 object-contain ${club.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
                       />
                       <span className="truncate text-[14px] font-medium">{displayName}</span>
                     </Link>

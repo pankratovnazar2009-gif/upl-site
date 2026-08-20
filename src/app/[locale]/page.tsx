@@ -145,7 +145,7 @@ export default async function HomePage() {
                     alt={club.name[locale]}
                     width={44}
                     height={44}
-                    className="h-full w-full max-h-11 max-w-11 object-contain grayscale transition-all duration-300 dark:brightness-0 dark:invert group-hover:grayscale-0 dark:group-hover:grayscale-0 dark:group-hover:brightness-100 dark:group-hover:invert-0"
+                    className={`h-full w-full max-h-11 max-w-11 object-contain grayscale transition-all duration-300 group-hover:grayscale-0 ${club.monochromeDark ? "dark:brightness-0 dark:invert dark:group-hover:grayscale-0 dark:group-hover:brightness-100 dark:group-hover:invert-0" : ""}`}
                   />
                 </Link>
               </RevealItem>
@@ -178,7 +178,7 @@ export default async function HomePage() {
                         {home ? home.name[locale] : m.homeName}
                       </span>
                       {home && (
-                        <Image src={home.logo} alt="" width={24} height={24} className="h-6 w-6 shrink-0 object-contain dark:brightness-0 dark:invert" />
+                        <Image src={home.logo} alt="" width={24} height={24} className={`h-6 w-6 shrink-0 object-contain ${home.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`} />
                       )}
                     </div>
                     <span className="text-[13px] font-medium tabular-nums text-fg-muted">
@@ -186,7 +186,7 @@ export default async function HomePage() {
                     </span>
                     <div className="flex items-center gap-2.5">
                       {away && (
-                        <Image src={away.logo} alt="" width={24} height={24} className="h-6 w-6 shrink-0 object-contain dark:brightness-0 dark:invert" />
+                        <Image src={away.logo} alt="" width={24} height={24} className={`h-6 w-6 shrink-0 object-contain ${away.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`} />
                       )}
                       <span className="truncate text-[14px] font-medium">
                         {away ? away.name[locale] : m.awayName}
