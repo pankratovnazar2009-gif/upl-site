@@ -5,16 +5,21 @@
  * One theme only: restrained navy (not flat graphite) with gold/red pop accents.
  */
 :root {
-  --bg: #0b1220;
-  --bg-raised: #141b2c;
-  --bg-glass: rgba(20, 27, 44, 0.75);
-  --fg: #ffffff;
-  --fg-muted: #8c96a6;
-  --fg-faint: rgba(255, 255, 255, 0.1);
-  --accent: #ffc700;
-  --accent-fg: #0b1220;
+  /* Navy sampled directly from the real UPL mark (public/logos/upl-mark.png
+     is solid #102040 — checked pixel by pixel, not eyeballed). */
+  --bg: #102040;
+  --bg-raised: #1a2c54;
+  --bg-glass: rgba(26, 44, 84, 0.75);
+  --fg: #f7f5ef;
+  --fg-muted: #9aa5bb;
+  --fg-faint: rgba(255, 255, 255, 0.12);
+  --accent: #f0ce7a;
+  --accent-fg: #102040;
   --live: #e6004c;
-  --brand-navy: #0b1220;
+  --brand-navy: #102040;
+  /* Muted card background for logos that need a light backing (partner
+     logos) without the glare of pure white against the navy page. */
+  --chip: #ede6d3;
 
   --state-win: #3f9a55;
   --state-draw: #8c96a6;
@@ -43,6 +48,7 @@
   --color-accent-fg: var(--accent-fg);
   --color-live: var(--live);
   --color-brand-navy: var(--brand-navy);
+  --color-chip: var(--chip);
   --color-state-win: var(--state-win);
   --color-state-draw: var(--state-draw);
   --color-state-loss: var(--state-loss);
