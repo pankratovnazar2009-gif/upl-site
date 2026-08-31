@@ -29,11 +29,12 @@ function TeamBlock({ side, align }: { side: MatchReportSide; align: "left" | "ri
   );
 }
 
-function LineupColumn({ lineup }: { lineup: MatchTeamLineup }) {
+function LineupColumn({ lineup, teamName }: { lineup: MatchTeamLineup; teamName: string }) {
   return (
     <div>
-      <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{lineup.startingLabel}</p>
-      <ul className="mt-3 flex flex-col gap-1.5">
+      <p className="text-label uppercase tracking-[0.1em] text-accent">{teamName}</p>
+      <p className="mt-3 text-label uppercase tracking-[0.1em] text-fg-muted">{lineup.startingLabel}</p>
+      <ul className="mt-2 flex flex-col gap-1.5">
         {lineup.starting.map((p, i) => (
           <li key={i} className="flex items-baseline gap-2.5 text-[13.5px]">
             <span className="w-5 shrink-0 text-right font-display font-bold tabular-nums text-fg-muted">
@@ -44,25 +45,33 @@ function LineupColumn({ lineup }: { lineup: MatchTeamLineup }) {
         ))}
       </ul>
 
-      {lineup.bench.length > 0 && (
-        <>
-          <p className="mt-5 text-label uppercase tracking-[0.1em] text-fg-muted">{lineup.benchLabel}</p>
-          <ul className="mt-3 flex flex-col gap-1.5">
-            {lineup.bench.map((p, i) => (
-              <li key={i} className="flex items-baseline gap-2.5 text-[13px] text-fg-muted">
-                <span className="w-5 shrink-0 text-right font-display font-bold tabular-nums">{p.number ?? ""}</span>
-                <span>{p.name}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      {(lineup.bench.length > 0 || lineup.coach) && (
+        <details className="group mt-4">
+          <summary className="cursor-pointer list-none text-label uppercase tracking-[0.1em] text-fg-muted transition-colors hover:text-accent">
+            <span className="inline-flex items-center gap-1.5">
+              {lineup.benchLabel}
+              <span className="text-[10px] transition-transform duration-300 group-open:rotate-45">+</span>
+            </span>
+          </summary>
 
-      {lineup.coach && (
-        <p className="mt-5 text-[13px] text-fg-muted">
-          <span className="text-label uppercase tracking-[0.1em]">{lineup.coachLabel}:</span>{" "}
-          <span className="font-medium text-fg">{lineup.coach}</span>
-        </p>
+          {lineup.bench.length > 0 && (
+            <ul className="mt-2.5 flex flex-col gap-1.5">
+              {lineup.bench.map((p, i) => (
+                <li key={i} className="flex items-baseline gap-2.5 text-[13px] text-fg-muted">
+                  <span className="w-5 shrink-0 text-right font-display font-bold tabular-nums">{p.number ?? ""}</span>
+                  <span>{p.name}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {lineup.coach && (
+            <p className="mt-3 text-[13px] text-fg-muted">
+              <span className="text-label uppercase tracking-[0.1em]">{lineup.coachLabel}:</span>{" "}
+              <span className="font-medium text-fg">{lineup.coach}</span>
+            </p>
+          )}
+        </details>
       )}
     </div>
   );
@@ -148,35 +157,37 @@ export default async function MatchReportPage({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[900px] px-(--gutter) py-(--section-y-dense)">
-        <Reveal>
-          <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
-          <div className="mt-5">
-            <MatchPitch
-              homeFormation={report.homeFormation}
-              awayFormation={report.awayFormation}
-              homeName={report.home.name}
-              awayName={report.away.name}
-            />
-          </div>
-        </Reveal>
+      <div className="mx-auto max-w-[1040px] px-(--gutter) py-(--section-y-dense)">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-start">
+          <Reveal>
+            <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
+            <div className="mt-5">
+              <MatchPitch
+                homeFormation={report.homeFormation}
+                awayFormation={report.awayFormation}
+                homeName={report.home.name}
+                awayName={report.away.name}
+              />
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <h2 className="font-display text-[20px] font-bold">{t("lineupsTitle")}</h2>
+            <div className="mt-5 flex flex-col gap-8">
+              <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
+              <LineupColumn lineup={report.awayLineup} teamName={report.away.name} />
+            </div>
+          </Reveal>
+        </div>
 
         {report.events.length > 0 && (
-          <Reveal delay={0.1} className="mt-12 border-t border-fg-faint pt-8">
+          <Reveal delay={0.15} className="mt-12 border-t border-fg-faint pt-8">
             <h2 className="font-display text-[20px] font-bold">{t("eventsTitle")}</h2>
             <div className="mt-5">
               <MatchTimeline events={report.events} />
             </div>
           </Reveal>
         )}
-
-        <Reveal delay={0.15} className="mt-12 border-t border-fg-faint pt-8">
-          <h2 className="font-display text-[20px] font-bold">{t("lineupsTitle")}</h2>
-          <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2">
-            <LineupColumn lineup={report.homeLineup} />
-            <LineupColumn lineup={report.awayLineup} />
-          </div>
-        </Reveal>
 
         {report.officials.length > 0 && (
           <Reveal delay={0.2} className="mt-12 border-t border-fg-faint pt-8">

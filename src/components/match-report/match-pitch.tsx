@@ -6,13 +6,27 @@ function hasRealPhoto(url: string | null): url is string {
   return !!url && !url.endsWith("player.png");
 }
 
+// Raw x/y from upl.ua run flush to 0%/100% at the pitch's outer edges (a
+// keeper drawn at y=0, a winger drawn at x=97) — with a fixed-width chip
+// centered on that point via translate(-50%,-50%), that pins it right on
+// (or past) the pitch border. Compress the usable drawing area a bit inside
+// each edge so every chip — including the two keepers — stays fully inside
+// the pitch with room to breathe. The shared halfway line is an internal
+// boundary, not a clipped edge, so it's left uncompressed.
+const MARGIN_X = 10;
+const MARGIN_Y_OUTER = 8;
+
+function insetX(x: number) {
+  return MARGIN_X + (x / 100) * (100 - 2 * MARGIN_X);
+}
+
 function Chip({ chip, top }: { chip: MatchFormationChip; top: number }) {
   const photo = hasRealPhoto(chip.photo) ? chip.photo : null;
 
   return (
     <div
       className="absolute flex w-[64px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 sm:w-[80px]"
-      style={{ left: `${chip.x}%`, top: `${top}%` }}
+      style={{ left: `${insetX(chip.x)}%`, top: `${top}%` }}
     >
       <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border-2 border-accent bg-bg-raised sm:h-10 sm:w-10">
         {photo ? (
@@ -70,10 +84,10 @@ export function MatchPitch({
       </div>
 
       {homeFormation.map((chip, i) => (
-        <Chip key={`h${i}`} chip={chip} top={chip.y / 2} />
+        <Chip key={`h${i}`} chip={chip} top={MARGIN_Y_OUTER + (chip.y / 100) * (50 - MARGIN_Y_OUTER)} />
       ))}
       {awayFormation.map((chip, i) => (
-        <Chip key={`a${i}`} chip={chip} top={50 + chip.y / 2} />
+        <Chip key={`a${i}`} chip={chip} top={50 + (chip.y / 100) * (50 - MARGIN_Y_OUTER)} />
       ))}
     </div>
   );
