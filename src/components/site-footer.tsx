@@ -18,12 +18,9 @@ export async function SiteFooter() {
               height={40}
               className="h-9 w-9 object-contain opacity-90 brightness-0 invert"
             />
-            <div className="max-w-xs text-[13px] leading-relaxed text-fg-muted">
-              <p className="font-display text-[13px] font-bold uppercase tracking-[0.04em] text-fg">
-                {t("org")}
-              </p>
-              <p className="mt-1">{t("address")}</p>
-            </div>
+            <p className="font-display text-[15px] font-bold uppercase tracking-[0.04em] text-fg-muted">
+              {t("org")}
+            </p>
           </div>
 
           <nav className="flex gap-8 text-[13px] uppercase tracking-[0.06em] text-fg-muted">
