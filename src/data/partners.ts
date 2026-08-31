@@ -1,5 +1,6 @@
 export type Partner = {
   name: string;
+  logo: string;
   role: { uk: string; en: string };
   note: { uk: string; en: string };
 };
@@ -7,11 +8,13 @@ export type Partner = {
 /**
  * Verified against upl.ua's own announcements (news/view/6342 — PUMA,
  * news/view/11570 — 1+1 media through 2030, news/view/5466 — VBET as title
- * partner) rather than taken at face value.
+ * partner) rather than taken at face value. Logos sourced from Wikimedia
+ * Commons (freely licensed versions, not Wikipedia's non-free namespace).
  */
 export const partners: Partner[] = [
   {
     name: "VBET Україна",
+    logo: "/logos/partners/vbet.png",
     role: { uk: "Титульний партнер", en: "Title partner" },
     note: {
       uk: "Підтримує чемпіонат і розвиток українського футболу.",
@@ -20,6 +23,7 @@ export const partners: Partner[] = [
   },
   {
     name: "PUMA",
+    logo: "/logos/partners/puma.png",
     role: { uk: "Технічний партнер", en: "Technical partner" },
     note: {
       uk: "Офіційний постачальник єдиного м'яча чемпіонату — PUMA Orbita Ball.",
@@ -28,6 +32,7 @@ export const partners: Partner[] = [
   },
   {
     name: "1+1 media",
+    logo: "/logos/partners/1plus1.png",
     role: { uk: "Ексклюзивний медіапартнер", en: "Exclusive media partner" },
     note: {
       uk: "Дистриб'ютор трансляцій UPL.TV до 2030 року.",

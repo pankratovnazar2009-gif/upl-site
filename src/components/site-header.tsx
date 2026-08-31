@@ -59,6 +59,14 @@ export function SiteHeader() {
               </Link>
             );
           })}
+          <a
+            href="https://tv.upl.ua/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] font-medium uppercase tracking-[0.08em] text-fg-muted transition-colors duration-300 hover:text-fg"
+          >
+            UPL.TV
+          </a>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -106,6 +114,16 @@ export function SiteHeader() {
                 </Link>
               </li>
             ))}
+            <li>
+              <a
+                href="https://tv.upl.ua/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-2.5 text-[15px] font-medium uppercase tracking-[0.04em] text-fg"
+              >
+                UPL.TV
+              </a>
+            </li>
           </ul>
           <a
             href="https://tv.upl.ua/"

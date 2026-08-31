@@ -47,25 +47,6 @@ export default async function HomePage() {
           text={t("heroTitle")}
           className="font-display mt-10 text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[0.98]"
         />
-        <Reveal delay={0.15} className="mt-4 max-w-lg">
-          <p className="text-[16px] leading-relaxed text-fg-muted">
-            {t("heroSubtitle")}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link
-              href="/tournament"
-              className="border border-accent bg-accent px-6 py-3 text-[13px] font-bold uppercase tracking-[0.08em] text-accent-fg transition-opacity duration-300 hover:opacity-85"
-            >
-              {t("cta")}
-            </Link>
-            <Link
-              href="/clubs"
-              className="border border-fg-faint px-6 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-fg transition-colors duration-300 hover:border-accent hover:text-accent"
-            >
-              {t("ctaSecondary")}
-            </Link>
-          </div>
-        </Reveal>
       </section>
 
       {/* Standings preview */}
@@ -153,11 +134,19 @@ export default async function HomePage() {
           >
             {partners.map((partner) => (
               <RevealItem key={partner.name}>
-                <p className="font-display text-[20px] font-bold">{partner.name}</p>
-                <p className="mt-1.5 text-label uppercase tracking-[0.08em] text-accent">
+                <div className="flex h-24 items-center justify-center bg-white p-5">
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    width={200}
+                    height={100}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <p className="mt-4 text-label uppercase tracking-[0.08em] text-accent">
                   {partner.role[locale]}
                 </p>
-                <p className="mt-3 text-[13.5px] leading-relaxed text-fg-muted">
+                <p className="mt-2 text-[13.5px] leading-relaxed text-fg-muted">
                   {partner.note[locale]}
                 </p>
               </RevealItem>
