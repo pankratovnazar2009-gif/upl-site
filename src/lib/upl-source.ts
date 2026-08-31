@@ -210,6 +210,23 @@ export function findCurrentRound(rounds: ScheduleRound[]): ScheduleRound | null 
   return best?.round ?? rounds[rounds.length - 1] ?? null;
 }
 
+/** The chronologically nearest match that hasn't been played yet, anywhere in the schedule. */
+export function findNextMatch(
+  rounds: ScheduleRound[],
+): { match: ScheduleMatch; round: number } | null {
+  let best: { match: ScheduleMatch; round: number; date: number } | null = null;
+
+  for (const round of rounds) {
+    for (const match of round.matches) {
+      if (match.status !== "scheduled") continue;
+      const date = parseUplDate(match.date);
+      if (!best || date < best.date) best = { match, round: round.round, date };
+    }
+  }
+
+  return best ? { match: best.match, round: best.round } : null;
+}
+
 /**
  * The marquee fixture of a round: the match between the two best-placed
  * clubs in the current table (lowest combined standings position), finished

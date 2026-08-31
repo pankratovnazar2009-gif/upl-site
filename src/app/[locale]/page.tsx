@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch, findNextMatch } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
@@ -27,6 +27,14 @@ export default async function HomePage() {
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
   const topMatch = currentRound ? findTopMatch(currentRound, standingsData.rows) : null;
+  const nextMatchResult = findNextMatch(scheduleData.rounds);
+  const isSameFixture =
+    topMatch &&
+    nextMatchResult &&
+    nextMatchResult.match.homeSlug === topMatch.homeSlug &&
+    nextMatchResult.match.awaySlug === topMatch.awaySlug &&
+    nextMatchResult.match.date === topMatch.date;
+  const nextMatch = isSameFixture ? null : (nextMatchResult?.match ?? null);
 
   return (
     <div>
@@ -38,7 +46,12 @@ export default async function HomePage() {
           <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
             {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
             {topMatch && currentRound && (
-              <TopMatchCard round={currentRound.round} match={topMatch} />
+              <TopMatchCard
+                round={currentRound.round}
+                match={topMatch}
+                nextMatch={nextMatch}
+                nextRound={nextMatchResult?.round}
+              />
             )}
           </Reveal>
         )}
