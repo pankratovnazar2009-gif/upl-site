@@ -5,6 +5,7 @@ import { getStandings, getSchedule, findCurrentRound } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs, getClubBySlug } from "@/data/clubs";
 import { StandingsTable } from "@/components/standings-table";
+import { MatchTicker } from "@/components/match-ticker";
 import { SplitHeading } from "@/components/motion/split-heading";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { Counter } from "@/components/motion/counter";
@@ -22,8 +23,10 @@ export default async function HomePage() {
 
   return (
     <div>
+      {currentRound && <MatchTicker round={currentRound} />}
+
       {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-16 pb-(--section-y) sm:pt-24">
+      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-14 pb-(--section-y) sm:pt-20">
         <p className="text-label uppercase tracking-[0.14em] text-accent">
           {t("kicker")}
         </p>
