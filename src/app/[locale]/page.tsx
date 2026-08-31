@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
+import { partners } from "@/data/partners";
 import { StandingsTable } from "@/components/standings-table";
 import { MatchTicker } from "@/components/match-ticker";
 import { NewsBox } from "@/components/news-box";
@@ -53,7 +54,7 @@ export default async function HomePage() {
           <div className="mt-6 flex flex-wrap gap-4">
             <Link
               href="/tournament"
-              className="border border-fg bg-fg px-6 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-bg transition-opacity duration-300 hover:opacity-80"
+              className="border border-accent bg-accent px-6 py-3 text-[13px] font-bold uppercase tracking-[0.08em] text-accent-fg transition-opacity duration-300 hover:opacity-85"
             >
               {t("cta")}
             </Link>
@@ -128,7 +129,7 @@ export default async function HomePage() {
                     alt={club.name[locale]}
                     width={44}
                     height={44}
-                    className={`h-full w-full max-h-11 max-w-11 object-contain grayscale transition-all duration-300 group-hover:grayscale-0 ${club.monochromeDark ? "dark:brightness-0 dark:invert dark:group-hover:grayscale-0 dark:group-hover:brightness-100 dark:group-hover:invert-0" : ""}`}
+                    className={`h-full w-full max-h-11 max-w-11 object-contain grayscale transition-all duration-300 group-hover:grayscale-0 ${club.monochromeDark ? "brightness-0 invert group-hover:brightness-100 group-hover:invert-0" : ""}`}
                   />
                 </Link>
               </RevealItem>
@@ -137,16 +138,30 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* About */}
+      {/* Partners */}
       <section className="border-t border-fg-faint">
-        <div className="mx-auto max-w-[720px] px-(--gutter) py-(--section-y)">
+        <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y)">
           <Reveal>
-            <h2 className="font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold">
-              {t("aboutTitle")}
+            <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold">
+              {t("partnersTitle")}
             </h2>
-            <p className="mt-5 text-[16px] leading-relaxed text-fg-muted">
-              {t("aboutBody")}
-            </p>
+          </Reveal>
+          <Reveal
+            stagger
+            as="ul"
+            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-3"
+          >
+            {partners.map((partner) => (
+              <RevealItem key={partner.name}>
+                <p className="font-display text-[20px] font-bold">{partner.name}</p>
+                <p className="mt-1.5 text-label uppercase tracking-[0.08em] text-accent">
+                  {partner.role[locale]}
+                </p>
+                <p className="mt-3 text-[13.5px] leading-relaxed text-fg-muted">
+                  {partner.note[locale]}
+                </p>
+              </RevealItem>
+            ))}
           </Reveal>
         </div>
       </section>

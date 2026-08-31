@@ -1,23 +1,25 @@
 @import "tailwindcss";
 
-/* Ties Tailwind's `dark:` variant to our own [data-theme] attribute
-   (set by theme-script.tsx / theme-toggle.tsx) instead of prefers-color-scheme. */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
+/*
+ * UPL design tokens — modern dark sports UI (client-specified palette).
+ * One theme only: deep athletic graphite with gold/red pop accents.
+ */
 :root {
-  --bg: #f6f2e9;
-  --bg-raised: #efe9db;
-  --fg: #12182a;
-  --fg-muted: #5b6478;
-  --fg-faint: #dcd4c2;
-  --accent: #8a5e12;
-  --accent-fg: #f6f2e9;
-  --brand-navy: #12182a;
+  --bg: #0f1218;
+  --bg-raised: #181c24;
+  --bg-glass: rgba(24, 28, 36, 0.75);
+  --fg: #ffffff;
+  --fg-muted: #8c96a6;
+  --fg-faint: rgba(255, 255, 255, 0.1);
+  --accent: #ffc700;
+  --accent-fg: #0f1218;
+  --live: #e6004c;
+  --brand-navy: #0f1218;
 
-  --state-win: #3f7a4c;
-  --state-draw: #8a8370;
-  --state-loss: #b3452f;
-  --state-live: #c23b3b;
+  --state-win: #3f9a55;
+  --state-draw: #8c96a6;
+  --state-loss: #e6004c;
+  --state-live: #e6004c;
 
   --font-display: var(--font-unbounded), system-ui, sans-serif;
   --font-body: var(--font-onest), system-ui, sans-serif;
@@ -30,25 +32,16 @@
   --gutter: clamp(20px, 4vw, 64px);
 }
 
-[data-theme="dark"] {
-  --bg: #0a0d14;
-  --bg-raised: #121722;
-  --fg: #edeef2;
-  --fg-muted: #98a0b2;
-  --fg-faint: #232838;
-  --accent: #c9a24b;
-  --accent-fg: #0a0d14;
-  --brand-navy: #0a0d14;
-}
-
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-raised: var(--bg-raised);
+  --color-bg-glass: var(--bg-glass);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-faint: var(--fg-faint);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-live: var(--live);
   --color-brand-navy: var(--brand-navy);
   --color-state-win: var(--state-win);
   --color-state-draw: var(--state-draw);
@@ -67,10 +60,6 @@
 }
 
 html {
-  color-scheme: light;
-}
-
-html[data-theme="dark"] {
   color-scheme: dark;
 }
 
@@ -78,9 +67,6 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
-  transition:
-    background-color 0.4s var(--ease-out),
-    color 0.4s var(--ease-out);
 }
 
 ::selection {

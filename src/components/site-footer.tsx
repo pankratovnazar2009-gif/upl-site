@@ -16,7 +16,7 @@ export async function SiteFooter() {
               alt="УПЛ"
               width={40}
               height={40}
-              className="h-9 w-9 object-contain opacity-90 dark:brightness-0 dark:invert"
+              className="h-9 w-9 object-contain opacity-90 brightness-0 invert"
             />
             <div className="max-w-xs text-[13px] leading-relaxed text-fg-muted">
               <p className="font-display text-[13px] font-bold uppercase tracking-[0.04em] text-fg">

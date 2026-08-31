@@ -11,7 +11,7 @@
     "clubs": "Clubs",
     "news": "News",
     "about": "About",
-    "toggleTheme": "Toggle theme",
+    "watchLive": "Watch LIVE",
     "language": "Language"
   },
   "home": {
@@ -34,7 +34,8 @@
     "clubsSubtitle": "2026/27 season — from Chernivtsi to Kharkiv",
     "clubsCta": "All 16 clubs",
     "aboutTitle": "More than a league",
-    "aboutBody": "The Association of Ukrainian Professional Football Clubs \"Premier League\" has existed since 2008. It's the top division of Ukrainian football — 16 clubs representing cities and communities across the country."
+    "aboutBody": "The Association of Ukrainian Professional Football Clubs \"Premier League\" has existed since 2008. It's the top division of Ukrainian football — 16 clubs representing cities and communities across the country.",
+    "partnersTitle": "League partners"
   },
   "standings": {
     "title": "Tournament",

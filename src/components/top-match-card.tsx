@@ -39,7 +39,7 @@ export async function TopMatchCard({
                 alt=""
                 width={52}
                 height={52}
-                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${home.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${home.monochromeDark ? "brightness-0 invert" : ""}`}
               />
             )}
             <span className="text-[13px] font-semibold leading-tight">
@@ -60,7 +60,7 @@ export async function TopMatchCard({
                 alt=""
                 width={52}
                 height={52}
-                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${away.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${away.monochromeDark ? "brightness-0 invert" : ""}`}
               />
             )}
             <span className="text-[13px] font-semibold leading-tight">

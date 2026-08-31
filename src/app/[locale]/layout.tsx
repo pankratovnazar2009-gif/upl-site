@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ThemeScript } from "@/components/theme-script";
 import { Preloader } from "@/components/preloader";
 import "../globals.css";
 
@@ -53,11 +52,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       className={`${unbounded.variable} ${onest.variable} h-full antialiased`}
-      suppressHydrationWarning
     >
-      <head>
-        <ThemeScript />
-      </head>
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <NextIntlClientProvider>
           <Preloader />

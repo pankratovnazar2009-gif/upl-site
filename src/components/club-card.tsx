@@ -18,7 +18,7 @@ export async function ClubCard({ club }: { club: Club }) {
           alt=""
           width={48}
           height={48}
-          className={`h-12 w-12 object-contain ${club.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+          className={`h-12 w-12 object-contain ${club.monochromeDark ? "brightness-0 invert" : ""}`}
         />
         <span className="text-label uppercase tracking-[0.1em] text-fg-muted">
           {club.city[locale]}

@@ -114,7 +114,7 @@ export function MatchTicker({ round }: { round: ScheduleRound }) {
                     width={20}
                     height={20}
                     draggable={false}
-                    className={`h-5 w-5 shrink-0 object-contain ${home.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+                    className={`h-5 w-5 shrink-0 object-contain ${home.monochromeDark ? "brightness-0 invert" : ""}`}
                   />
                 )}
                 <span className="text-[12px] font-bold uppercase tracking-[0.02em]">
@@ -137,7 +137,7 @@ export function MatchTicker({ round }: { round: ScheduleRound }) {
                     width={20}
                     height={20}
                     draggable={false}
-                    className={`h-5 w-5 shrink-0 object-contain ${away.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+                    className={`h-5 w-5 shrink-0 object-contain ${away.monochromeDark ? "brightness-0 invert" : ""}`}
                   />
                 )}
               </div>

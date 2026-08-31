@@ -60,7 +60,7 @@ export default async function ClubPage({
           alt=""
           width={88}
           height={88}
-          className={`h-20 w-20 object-contain sm:h-[88px] sm:w-[88px] ${club.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+          className={`h-20 w-20 object-contain sm:h-[88px] sm:w-[88px] ${club.monochromeDark ? "brightness-0 invert" : ""}`}
         />
         <div>
           <p className="text-label uppercase tracking-[0.14em] text-accent">

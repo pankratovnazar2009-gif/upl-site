@@ -33,7 +33,7 @@ function TeamCell({ slug, name, align }: { slug: string | null; name: string; al
           alt=""
           width={26}
           height={26}
-          className={`h-[26px] w-[26px] shrink-0 object-contain ${club.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`}
+          className={`h-[26px] w-[26px] shrink-0 object-contain ${club.monochromeDark ? "brightness-0 invert" : ""}`}
         />
       )}
       <span className="truncate text-[14px] font-medium sm:text-[15px]">{label}</span>
