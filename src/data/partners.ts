@@ -1,6 +1,7 @@
 export type Partner = {
   name: string;
-  logo: string;
+  /** Image path — omit to render `name` as a styled wordmark instead. */
+  logo?: string;
   role: { uk: string; en: string };
   note: { uk: string; en: string };
 };
@@ -8,8 +9,9 @@ export type Partner = {
 /**
  * Verified against upl.ua's own announcements (news/view/6342 — PUMA,
  * news/view/11570 — 1+1 media through 2030, news/view/5466 — VBET as title
- * partner) rather than taken at face value. Logos sourced from Wikimedia
- * Commons (freely licensed versions, not Wikipedia's non-free namespace).
+ * partner) and independent press coverage (BETKING, July 2026) rather than
+ * taken at face value. Logos sourced from Wikimedia Commons (freely
+ * licensed versions, not Wikipedia's non-free namespace) where available.
  */
 export const partners: Partner[] = [
   {
@@ -19,6 +21,14 @@ export const partners: Partner[] = [
     note: {
       uk: "Підтримує чемпіонат і розвиток українського футболу.",
       en: "Supports the championship and the development of Ukrainian football.",
+    },
+  },
+  {
+    name: "BETKING",
+    role: { uk: "Стратегічний партнер", en: "Strategic partner" },
+    note: {
+      uk: "Дворічне партнерство з УПЛ — нагорода «Гравець туру» від BETKING, спільна лінія мерчу та ініціативи відповідальної гри.",
+      en: "A two-season partnership with the UPL — the BETKING \"Player of the Round\" award, joint merchandise line and responsible-gambling initiatives.",
     },
   },
   {

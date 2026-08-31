@@ -22,19 +22,23 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-fg-faint bg-bg-glass backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-(--gutter)">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 font-display text-[15px] font-bold uppercase tracking-[0.02em]"
-        >
+        <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logos/upl-mark.png"
-            alt="УПЛ"
+            alt=""
             width={30}
             height={30}
-            className="h-7 w-7 object-contain brightness-0 invert"
+            className="h-7 w-7 shrink-0 object-contain brightness-0 invert"
             priority
           />
-          <span className="hidden sm:inline">УПЛ</span>
+          <span className="hidden font-display text-[13px] font-bold leading-[1.15] lg:block">
+            Українська
+            <br />
+            Прем&apos;єр-Ліга
+          </span>
+          <span className="hidden font-display text-[15px] font-bold uppercase tracking-[0.02em] sm:inline lg:hidden">
+            УПЛ
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

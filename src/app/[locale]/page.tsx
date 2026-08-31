@@ -130,18 +130,24 @@ export default async function HomePage() {
           <Reveal
             stagger
             as="ul"
-            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-3"
+            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-2 lg:grid-cols-4"
           >
             {partners.map((partner) => (
               <RevealItem key={partner.name}>
                 <div className="flex h-24 items-center justify-center bg-white p-5">
-                  <Image
-                    src={partner.logo}
-                    alt={partner.name}
-                    width={200}
-                    height={100}
-                    className="h-full w-full object-contain"
-                  />
+                  {partner.logo ? (
+                    <Image
+                      src={partner.logo}
+                      alt={partner.name}
+                      width={200}
+                      height={100}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <span className="font-display text-[22px] font-black italic tracking-tight text-[#0F1218]">
+                      {partner.name}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-4 text-label uppercase tracking-[0.08em] text-accent">
                   {partner.role[locale]}
