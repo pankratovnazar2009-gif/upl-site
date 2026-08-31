@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 /*
- * UPL design tokens — modern dark sports UI (client-specified palette).
- * One theme only: deep athletic graphite with gold/red pop accents.
+ * UPL design tokens — modern dark sports UI.
+ * One theme only: restrained navy (not flat graphite) with gold/red pop accents.
  */
 :root {
-  --bg: #0f1218;
-  --bg-raised: #181c24;
-  --bg-glass: rgba(24, 28, 36, 0.75);
+  --bg: #0b1220;
+  --bg-raised: #141b2c;
+  --bg-glass: rgba(20, 27, 44, 0.75);
   --fg: #ffffff;
   --fg-muted: #8c96a6;
   --fg-faint: rgba(255, 255, 255, 0.1);
   --accent: #ffc700;
-  --accent-fg: #0f1218;
+  --accent-fg: #0b1220;
   --live: #e6004c;
-  --brand-navy: #0f1218;
+  --brand-navy: #0b1220;
 
   --state-win: #3f9a55;
   --state-draw: #8c96a6;
