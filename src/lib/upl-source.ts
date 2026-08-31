@@ -273,8 +273,11 @@ export type NewsResult = {
  * link back to the original for the full article — never the article body —
  * to stay well clear of reproducing their editorial content.
  */
-export async function getNews(limit = 9): Promise<NewsResult | null> {
-  const html = await fetchHtml("/ua/news/index");
+export async function getNews(
+  limit = 9,
+  path = "/ua/news/index",
+): Promise<NewsResult | null> {
+  const html = await fetchHtml(path);
   if (!html) return null;
 
   const $ = cheerio.load(html);
@@ -302,6 +305,11 @@ export async function getNews(limit = 9): Promise<NewsResult | null> {
 
   if (items.length === 0) return null;
   return { items, fetchedAt: new Date().toISOString() };
+}
+
+/** "Expert picks of the round" — same feed format as news, filtered to awards. */
+export async function getAwardsNews(limit = 3): Promise<NewsResult | null> {
+  return getNews(limit, "/ua/upl-prizes");
 }
 
 /**

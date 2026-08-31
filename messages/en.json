@@ -84,7 +84,15 @@
     "title": "About UPL",
     "subtitle": "The Ukrainian Premier League is a self-governed association of clubs running the top tier of Ukrainian football.",
     "timelineTitle": "How it started",
-    "leadershipTitle": "UPL leadership"
+    "leadershipTitle": "UPL leadership",
+    "awardsTitle": "Round awards",
+    "awardsSubtitle": "Best coach, player and team of the round, picked by experts",
+    "documentsTitle": "Documents",
+    "documentsSubtitle": "Key season regulations. Full archive on upl.ua",
+    "documentsAllLink": "Full document archive",
+    "contactsTitle": "Contacts",
+    "contactsAddress": "Address",
+    "contactsEmail": "Email"
   },
   "footer": {
     "org": "PREMIER LEAGUE LLC",
