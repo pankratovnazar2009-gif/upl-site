@@ -333,3 +333,239 @@ export async function getFeaturedNews(count = 3): Promise<NewsItem[] | null> {
 
   return withBigImages;
 }
+
+/** Extracts the numeric report id from a `/ua/report/view/{id}` href, as captured in ScheduleMatch.reportUrl. */
+export function reportIdFromUrl(reportUrl: string | null): number | null {
+  if (!reportUrl) return null;
+  const m = reportUrl.match(/\/report\/view\/(\d+)/);
+  return m ? Number(m[1]) : null;
+}
+
+export type MatchReportSide = {
+  slug: string | null;
+  name: string;
+  logo: string | null;
+};
+
+export type MatchLineupEntry = { number: number | null; name: string };
+
+export type MatchTeamLineup = {
+  /** Section label as published by the source ("Стартовий склад"/"Line-ups", "Запасні"/"Substitutes", "Тренер"/"Coach") — passed through rather than re-translated, so it always matches the fetched locale. */
+  startingLabel: string;
+  starting: MatchLineupEntry[];
+  benchLabel: string;
+  bench: MatchLineupEntry[];
+  coachLabel: string;
+  coach: string | null;
+};
+
+export type MatchFormationChip = {
+  number: number | null;
+  name: string;
+  photo: string | null;
+  x: number;
+  y: number;
+};
+
+export type MatchEvent = {
+  minute: string;
+  kind: "goal" | "card" | "sub" | "other";
+  cardType?: "yellow" | "red";
+  side: "home" | "away";
+  players: string[];
+};
+
+export type MatchOfficial = { label: string; name: string };
+
+export type MatchReport = {
+  id: number;
+  round: number | null;
+  matchNumber: number | null;
+  date: string;
+  time: string | null;
+  venue: string | null;
+  venueUrl: string | null;
+  attendance: string | null;
+  temperature: string | null;
+  heroImage: string | null;
+  home: MatchReportSide;
+  away: MatchReportSide;
+  score: { home: number; away: number } | null;
+  events: MatchEvent[];
+  homeLineup: MatchTeamLineup;
+  awayLineup: MatchTeamLineup;
+  homeFormation: MatchFormationChip[];
+  awayFormation: MatchFormationChip[];
+  officials: MatchOfficial[];
+  previewUrl: string;
+  reviewUrl: string;
+  sourceUrl: string;
+};
+
+function parseTeamLineup($: cheerio.CheerioAPI, $teamPlayers: ReturnType<typeof $>): MatchTeamLineup {
+  const titles = $teamPlayers.find(".list-title");
+  const lists = $teamPlayers.find(".list-players");
+
+  const parseEntries = (i: number): MatchLineupEntry[] => {
+    const entries: MatchLineupEntry[] = [];
+    $(lists[i])
+      .find(".player-item")
+      .each((_, el) => {
+        const $el = $(el);
+        const numText = $el.find(".num").text().trim();
+        const name = $el.find(".player-name").text().trim();
+        if (!name) return;
+        entries.push({ number: numText ? Number(numText) : null, name });
+      });
+    return entries;
+  };
+
+  return {
+    startingLabel: $(titles[0]).text().trim(),
+    starting: parseEntries(0),
+    benchLabel: $(titles[1]).text().trim(),
+    bench: parseEntries(1),
+    coachLabel: $(titles[2]).text().trim(),
+    coach: parseEntries(2)[0]?.name ?? null,
+  };
+}
+
+function parseFormation($: cheerio.CheerioAPI, fieldSelector: string): MatchFormationChip[] {
+  const chips: MatchFormationChip[] = [];
+  $(fieldSelector)
+    .find(".chip")
+    .each((_, el) => {
+      const $el = $(el);
+      const style = $el.attr("style") || "";
+      const left = Number((style.match(/left:\s*([\d.]+)%/) || [])[1]);
+      const top = Number((style.match(/top:\s*([\d.]+)%/) || [])[1]);
+      const text = $el.find(".text").text().trim().replace(/\s+/g, " ");
+      const numMatch = text.match(/^(\d+)\s+(.*)$/);
+      const photo = $el.find(".chip-img img").attr("src") || null;
+      chips.push({
+        number: numMatch ? Number(numMatch[1]) : null,
+        name: numMatch ? numMatch[2] : text,
+        photo: photo ? `${BASE}${photo}` : null,
+        x: Number.isFinite(left) ? left : 50,
+        y: Number.isFinite(top) ? top : 50,
+      });
+    });
+  return chips;
+}
+
+/**
+ * Full match report (lineups, pitch formation, event timeline, match
+ * officials) scraped from upl.ua's own referee-report page. We fetch the
+ * locale-matched version of the page (upl.ua publishes a parallel English
+ * one) so every section label and team name comes back already translated —
+ * we only supply our own chrome text around it.
+ */
+export async function getMatchReport(
+  id: number,
+  locale: "uk" | "en" = "uk",
+): Promise<MatchReport | null> {
+  const langPath = locale === "en" ? "en" : "ua";
+  const html = await fetchHtml(`/${langPath}/report/view/${id}/report`);
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  if ($(".match-main-info").length === 0) return null;
+
+  const headerText = $(".match-header").text();
+  const round = Number((headerText.match(/(\d+)[^\d]{0,6}(?:тур|round)/i) || [])[1]) || null;
+  const matchNumber =
+    Number((headerText.match(/(?:Матч|Match)\s*#?№?\s*(\d+)/i) || [])[1]) || null;
+
+  const teams = $(".match-main-info .center-part .team");
+  const parseSide = (i: number): MatchReportSide => {
+    const $team = $(teams[i]);
+    const href = $team.find("a.name-team").attr("href") || "";
+    const uplId = Number(href.split("/").pop());
+    const slug = uplIdToSlug.get(uplId) ?? null;
+    const club = slug ? clubs.find((c) => c.slug === slug) : undefined;
+    const scrapedLogo = $team.find("img").attr("src");
+    return {
+      slug,
+      name: club ? club.name[locale] : $team.find("a.name-team").text().trim(),
+      logo: club ? club.logo : scrapedLogo ? `${BASE}${scrapedLogo}` : null,
+    };
+  };
+
+  const resultText = $(".match-main-info .resualt").text().trim();
+  const scoreMatch = resultText.match(/^(\d+)\s*:\s*(\d+)$/);
+
+  const peopleText = $(".match-main-info .people").text().trim();
+  const tempText = $(".match-main-info .temperature").text().trim();
+  const timeText = $(".match-main-info .time").text().trim();
+  const dateMatch = timeText.match(/^(\d{2}\.\d{2}\.\d{4})/);
+
+  const teamPlayersBlocks = $(".team-players");
+
+  const events: MatchEvent[] = [];
+  $(".events-container .event").each((_, el) => {
+    const $event = $(el);
+    const classAttr = $event.attr("class") || "";
+    const typeMatch = classAttr.match(/type-(card|change|score)(?:-(\d+))?/);
+    if (!typeMatch) return;
+
+    const playerDivs = $event.children(".player");
+    const homeDiv = $(playerDivs[0]);
+    const awayDiv = $(playerDivs[1]);
+    const isHome = homeDiv.find(".players").length > 0;
+    const $active = isHome ? homeDiv : awayDiv;
+
+    const rawHtml = $active.find(".players").html() || "";
+    const players = rawHtml
+      .split(/<br\s*\/?>/i)
+      .map((part) => cheerio.load(`<div>${part}</div>`)("div").text().trim())
+      .filter(Boolean);
+    if (players.length === 0) return;
+
+    const minute = $event.find(".point").text().trim();
+    const [, kindRaw, variant] = typeMatch;
+    const kind = kindRaw === "score" ? "goal" : kindRaw === "change" ? "sub" : "card";
+
+    events.push({
+      minute,
+      kind,
+      ...(kind === "card" ? { cardType: variant === "1" ? "red" : "yellow" } : {}),
+      side: isHome ? "home" : "away",
+      players,
+    });
+  });
+
+  const officials: MatchOfficial[] = [];
+  $(".footer-info .item-info").each((_, el) => {
+    const $el = $(el);
+    const label = $el.find(".label").text().trim().replace(/:$/, "");
+    const name = $el.find(".value").text().trim();
+    if (label && name) officials.push({ label, name });
+  });
+
+  const venueLink = $(".match-main-info .place a.place");
+
+  return {
+    id,
+    round,
+    matchNumber,
+    date: dateMatch ? dateMatch[1] : timeText,
+    time: timeText || null,
+    venue: venueLink.text().trim() || null,
+    venueUrl: venueLink.attr("href") ? `${BASE}${venueLink.attr("href")}` : null,
+    attendance: peopleText || null,
+    temperature: tempText || null,
+    heroImage: $('meta[property="og:image"]').attr("content") || null,
+    home: parseSide(0),
+    away: parseSide(1),
+    score: scoreMatch ? { home: Number(scoreMatch[1]), away: Number(scoreMatch[2]) } : null,
+    events,
+    homeLineup: parseTeamLineup($, $(teamPlayersBlocks[0])),
+    awayLineup: parseTeamLineup($, $(teamPlayersBlocks[1])),
+    homeFormation: parseFormation($, "#field"),
+    awayFormation: parseFormation($, "#field2"),
+    officials,
+    previewUrl: `${BASE}/${langPath}/report/view/${id}/preview`,
+    reviewUrl: `${BASE}/${langPath}/report/view/${id}/review`,
+    sourceUrl: `${BASE}/${langPath}/report/view/${id}/report`,
+  };
+}

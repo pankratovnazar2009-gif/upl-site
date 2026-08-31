@@ -95,6 +95,22 @@
     "documentsSubtitle": "Бланки та нормативні документи сезону 2026/27",
     "documentsAllLink": "Архів документів минулих сезонів"
   },
+  "match": {
+    "back": "Розклад матчів",
+    "matchNumber": "Матч №{number}",
+    "notFoundTitle": "Матч не знайдено",
+    "notFoundBody": "Не вдалося завантажити звіт про цей матч.",
+    "attendance": "Глядачі",
+    "temperature": "Температура",
+    "formationTitle": "Стартові склади на полі",
+    "eventsTitle": "Хронологія матчу",
+    "officialsTitle": "Суддівська колегія",
+    "lineupsTitle": "Заявки команд",
+    "previewLink": "Анонс на upl.ua",
+    "reviewLink": "Огляд матчу на upl.ua",
+    "fullReportLink": "Повний рапорт арбітра на upl.ua",
+    "sourceNote": "Склади, події та статистика синхронізовані з офіційного сайту УПЛ"
+  },
   "footer": {
     "org": "УПЛ",
     "rights": "Всі права захищені",

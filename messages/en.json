@@ -95,6 +95,22 @@
     "documentsSubtitle": "Forms and regulations for the 2026/27 season",
     "documentsAllLink": "Archive of past seasons' documents"
   },
+  "match": {
+    "back": "Match schedule",
+    "matchNumber": "Match #{number}",
+    "notFoundTitle": "Match not found",
+    "notFoundBody": "Couldn't load the report for this match.",
+    "attendance": "Attendance",
+    "temperature": "Temperature",
+    "formationTitle": "Starting line-ups on the pitch",
+    "eventsTitle": "Match timeline",
+    "officialsTitle": "Match officials",
+    "lineupsTitle": "Squad lists",
+    "previewLink": "Preview on upl.ua",
+    "reviewLink": "Match review on upl.ua",
+    "fullReportLink": "Full referee report on upl.ua",
+    "sourceNote": "Lineups, events, and stats synced from the official UPL site"
+  },
   "footer": {
     "org": "UPL",
     "rights": "All rights reserved",

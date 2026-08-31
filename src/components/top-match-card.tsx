@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
-import type { ScheduleMatch } from "@/lib/upl-source";
+import { reportIdFromUrl, type ScheduleMatch } from "@/lib/upl-source";
 
 function MatchRow({
   match,
@@ -78,6 +78,11 @@ export async function TopMatchCard({
   const t = await getTranslations("home");
   const ts = await getTranslations("standings");
   const locale = (await getLocale()) as "uk" | "en";
+  // upl.ua links a fixture's result cell to a report page even before kickoff
+  // (it just has no score/lineups yet) — only route finished matches in.
+  const topReportId = match.status === "finished" ? reportIdFromUrl(match.reportUrl) : null;
+  const nextReportId =
+    nextMatch?.status === "finished" ? reportIdFromUrl(nextMatch.reportUrl) : null;
 
   return (
     <div className="flex h-full flex-col border border-fg-faint">
@@ -90,9 +95,18 @@ export async function TopMatchCard({
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-4 text-center">
-        <MatchRow match={match} locale={locale} size="lg" />
-      </div>
+      {topReportId ? (
+        <Link
+          href={`/matches/${topReportId}`}
+          className="flex flex-1 flex-col items-center justify-center px-6 py-4 text-center transition-colors hover:bg-bg-raised"
+        >
+          <MatchRow match={match} locale={locale} size="lg" />
+        </Link>
+      ) : (
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-4 text-center">
+          <MatchRow match={match} locale={locale} size="lg" />
+        </div>
+      )}
 
       {nextMatch && (
         <>
@@ -105,9 +119,18 @@ export async function TopMatchCard({
               {nextMatch.date}
             </span>
           </div>
-          <div className="flex flex-col items-center justify-center px-6 py-4 text-center">
-            <MatchRow match={nextMatch} locale={locale} size="sm" />
-          </div>
+          {nextReportId ? (
+            <Link
+              href={`/matches/${nextReportId}`}
+              className="flex flex-col items-center justify-center px-6 py-4 text-center transition-colors hover:bg-bg-raised"
+            >
+              <MatchRow match={nextMatch} locale={locale} size="sm" />
+            </Link>
+          ) : (
+            <div className="flex flex-col items-center justify-center px-6 py-4 text-center">
+              <MatchRow match={nextMatch} locale={locale} size="sm" />
+            </div>
+          )}
         </>
       )}
 

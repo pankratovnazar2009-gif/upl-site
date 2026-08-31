@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
-import type { ScheduleRound } from "@/lib/upl-source";
+import { reportIdFromUrl, type ScheduleRound } from "@/lib/upl-source";
 
 function groupByDate(round: ScheduleRound) {
   const groups = new Map<string, ScheduleRound["matches"]>();
@@ -110,16 +111,18 @@ export function ScheduleBrowser({
                     <TeamCell slug={m.awaySlug} name={m.awayName} align="left" />
                   </div>
                 );
-                return m.reportUrl ? (
-                  <a
+                // upl.ua links a fixture's result cell to a report page even before
+                // kickoff (it just has no score/lineups yet) — only route finished
+                // matches to our internal report page.
+                const reportId = m.status === "finished" ? reportIdFromUrl(m.reportUrl) : null;
+                return reportId ? (
+                  <Link
                     key={i}
-                    href={`https://upl.ua${m.reportUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/matches/${reportId}`}
                     className="transition-colors duration-200 hover:bg-bg-raised"
                   >
                     {inner}
-                  </a>
+                  </Link>
                 ) : (
                   <div key={i}>{inner}</div>
                 );
