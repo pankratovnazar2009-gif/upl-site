@@ -33,9 +33,9 @@ export default async function HomePage() {
       {currentRound && <MatchTicker round={currentRound} />}
 
       {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-6 pb-(--section-y-dense) sm:pt-8">
+      <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-(--section-y-dense) sm:pt-8">
         {(featuredNews?.length || topMatch) && (
-          <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+          <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
             {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
             {topMatch && currentRound && (
               <TopMatchCard round={currentRound.round} match={topMatch} />

@@ -43,7 +43,7 @@ export function NewsBox({ items }: { items: NewsItem[] }) {
 
   return (
     <div
-      className="relative aspect-[4/3] w-full select-none overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-[16/12]"
+      className="relative aspect-[4/3] w-full select-none overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-video"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

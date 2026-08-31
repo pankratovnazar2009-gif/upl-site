@@ -30,40 +30,40 @@ export async function TopMatchCard({
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-8 text-center">
-        <div className="flex w-full items-center justify-center gap-4">
-          <div className="flex flex-1 flex-col items-center gap-2">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-4 text-center">
+        <div className="flex w-full items-center justify-center gap-4 sm:gap-6">
+          <div className="flex flex-1 flex-col items-center gap-2.5">
             {home && (
               <Image
                 src={home.logo}
                 alt=""
-                width={52}
-                height={52}
-                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${home.monochromeDark ? "brightness-0 invert" : ""}`}
+                width={72}
+                height={72}
+                className={`h-14 w-14 object-contain sm:h-[72px] sm:w-[72px] ${home.monochromeDark ? "brightness-0 invert" : ""}`}
               />
             )}
-            <span className="text-[13px] font-semibold leading-tight">
+            <span className="text-[13px] font-semibold leading-tight sm:text-[14px]">
               {home ? home.name[locale] : match.homeName}
             </span>
           </div>
 
-          <span className="font-display shrink-0 text-[clamp(1.75rem,3vw,2.5rem)] font-bold tabular-nums">
+          <span className="font-display shrink-0 text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold tabular-nums">
             {match.status === "finished"
               ? `${match.score?.home} : ${match.score?.away}`
               : (match.time ?? "—")}
           </span>
 
-          <div className="flex flex-1 flex-col items-center gap-2">
+          <div className="flex flex-1 flex-col items-center gap-2.5">
             {away && (
               <Image
                 src={away.logo}
                 alt=""
-                width={52}
-                height={52}
-                className={`h-12 w-12 object-contain sm:h-[52px] sm:w-[52px] ${away.monochromeDark ? "brightness-0 invert" : ""}`}
+                width={72}
+                height={72}
+                className={`h-14 w-14 object-contain sm:h-[72px] sm:w-[72px] ${away.monochromeDark ? "brightness-0 invert" : ""}`}
               />
             )}
-            <span className="text-[13px] font-semibold leading-tight">
+            <span className="text-[13px] font-semibold leading-tight sm:text-[14px]">
               {away ? away.name[locale] : match.awayName}
             </span>
           </div>
