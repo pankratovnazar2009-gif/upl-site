@@ -1,6 +1,6 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { leagueTimeline, leadership } from "@/data/league-history";
-import { documents } from "@/data/documents";
+import { documentFolders } from "@/data/documents";
 import { getAwardsNews } from "@/lib/upl-source";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 
@@ -92,20 +92,51 @@ export default async function AboutPage() {
           {t("documentsTitle")}
         </h2>
         <p className="mt-2 text-[13.5px] text-fg-muted">{t("documentsSubtitle")}</p>
-        <Reveal stagger as="ul" className="mt-6 flex flex-col">
-          {documents.map((doc) => (
-            <RevealItem key={doc.url} className="border-t border-fg-faint first:border-t-0">
-              <a
-                href={doc.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between gap-4 py-3.5 text-[14px] font-medium transition-colors hover:text-accent"
-              >
-                {doc.title[locale]}
-                <span className="text-label shrink-0 uppercase tracking-[0.06em] text-fg-muted">
-                  PDF ↗
-                </span>
-              </a>
+        <Reveal stagger className="mt-6 flex flex-col gap-3">
+          {documentFolders.map((folder) => (
+            <RevealItem key={folder.name.uk}>
+              <details className="group border border-fg-faint">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 bg-bg-raised px-4 py-3 text-[13px] font-bold uppercase tracking-[0.06em] transition-colors hover:text-accent">
+                  <span className="flex items-center gap-2.5">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                      className="shrink-0 text-fg-muted"
+                    >
+                      <path
+                        d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6Z"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    {folder.name[locale]}
+                  </span>
+                  <span className="shrink-0 text-fg-muted transition-transform duration-300 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <ul className="flex flex-col border-t border-fg-faint">
+                  {folder.items.map((doc) => (
+                    <li key={doc.url} className="border-t border-fg-faint first:border-t-0">
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between gap-4 px-4 py-3 text-[13.5px] font-medium transition-colors hover:text-accent"
+                      >
+                        {doc.title[locale]}
+                        <span className="text-label shrink-0 uppercase tracking-[0.06em] text-fg-muted">
+                          ↗
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </RevealItem>
           ))}
         </Reveal>
