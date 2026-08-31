@@ -9,7 +9,6 @@ import { StandingsTable } from "@/components/standings-table";
 import { MatchTicker } from "@/components/match-ticker";
 import { NewsBox } from "@/components/news-box";
 import { TopMatchCard } from "@/components/top-match-card";
-import { SplitHeading } from "@/components/motion/split-heading";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 
 export const revalidate = 300;
@@ -55,12 +54,6 @@ export default async function HomePage() {
             )}
           </Reveal>
         )}
-
-        <SplitHeading
-          eager
-          text={t("heroTitle")}
-          className="font-display mt-6 text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[0.98]"
-        />
       </section>
 
       {/* Standings preview */}
