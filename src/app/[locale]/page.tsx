@@ -10,7 +10,6 @@ import { NewsBox } from "@/components/news-box";
 import { TopMatchCard } from "@/components/top-match-card";
 import { SplitHeading } from "@/components/motion/split-heading";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
-import { Counter } from "@/components/motion/counter";
 
 export const revalidate = 300;
 
@@ -33,19 +32,25 @@ export default async function HomePage() {
       {currentRound && <MatchTicker round={currentRound} />}
 
       {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-14 pb-(--section-y) sm:pt-20">
-        <p className="text-label uppercase tracking-[0.14em] text-accent">
-          {t("kicker")}
-        </p>
+      <section className="mx-auto max-w-[1200px] px-(--gutter) pt-6 pb-(--section-y-dense) sm:pt-8">
+        {(featuredNews?.length || topMatch) && (
+          <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+            {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
+            {topMatch && currentRound && (
+              <TopMatchCard round={currentRound.round} match={topMatch} />
+            )}
+          </Reveal>
+        )}
+
         <SplitHeading
           text={t("heroTitle")}
-          className="font-display mt-4 text-[clamp(2.75rem,8vw,6.5rem)] font-bold leading-[0.95]"
+          className="font-display mt-10 text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[0.98]"
         />
-        <Reveal delay={0.35} className="mt-8 max-w-lg">
+        <Reveal delay={0.15} className="mt-4 max-w-lg">
           <p className="text-[16px] leading-relaxed text-fg-muted">
             {t("heroSubtitle")}
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-6 flex flex-wrap gap-4">
             <Link
               href="/tournament"
               className="border border-fg bg-fg px-6 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-bg transition-opacity duration-300 hover:opacity-80"
@@ -58,47 +63,6 @@ export default async function HomePage() {
             >
               {t("ctaSecondary")}
             </Link>
-          </div>
-        </Reveal>
-
-        {(featuredNews?.length || topMatch) && (
-          <Reveal delay={0.2} className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
-            {topMatch && currentRound && (
-              <TopMatchCard round={currentRound.round} match={topMatch} />
-            )}
-          </Reveal>
-        )}
-
-        <Reveal
-          delay={0.15}
-          className="mt-14 grid grid-cols-3 gap-6 border-t border-fg-faint pt-8 sm:max-w-xl"
-        >
-          <div>
-            <Counter
-              to={16}
-              className="font-display block text-[clamp(1.75rem,4vw,2.75rem)] font-bold tabular-nums"
-            />
-            <p className="mt-1 text-[12px] uppercase tracking-[0.06em] text-fg-muted">
-              {t("statClubs")}
-            </p>
-          </div>
-          <div>
-            <Counter
-              to={19}
-              className="font-display block text-[clamp(1.75rem,4vw,2.75rem)] font-bold tabular-nums"
-            />
-            <p className="mt-1 text-[12px] uppercase tracking-[0.06em] text-fg-muted">
-              {t("statSeasons")}
-            </p>
-          </div>
-          <div>
-            <span className="font-display block text-[clamp(1.75rem,4vw,2.75rem)] font-bold tabular-nums">
-              2008
-            </span>
-            <p className="mt-1 text-[12px] uppercase tracking-[0.06em] text-fg-muted">
-              {t("statFounded")}
-            </p>
           </div>
         </Reveal>
       </section>
