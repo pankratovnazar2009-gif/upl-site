@@ -36,7 +36,7 @@ export function SiteHeader() {
             <br />
             Прем&apos;єр-Ліга
           </span>
-          <span className="hidden font-display text-[15px] font-bold uppercase tracking-[0.02em] sm:inline lg:hidden">
+          <span className="hidden font-display text-[15px] leading-none font-bold uppercase tracking-[0.02em] sm:inline lg:hidden">
             УПЛ
           </span>
         </Link>

@@ -156,7 +156,7 @@ export default async function HomePage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-4 text-label uppercase tracking-[0.08em] text-accent">
+                <p className="mt-4 text-label uppercase tracking-[0.08em] text-fg-muted">
                   {partner.role[locale]}
                 </p>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-fg-muted">
