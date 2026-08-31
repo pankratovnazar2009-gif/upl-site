@@ -41,7 +41,7 @@ export default async function HomePage() {
       {currentRound && <MatchTicker round={currentRound} />}
 
       {/* Hero */}
-      <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-(--section-y-dense) sm:pt-8">
+      <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-6 sm:pt-8 sm:pb-8">
         {(featuredNews?.length || topMatch) && (
           <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
             {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
@@ -57,8 +57,9 @@ export default async function HomePage() {
         )}
 
         <SplitHeading
+          eager
           text={t("heroTitle")}
-          className="font-display mt-10 text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[0.98]"
+          className="font-display mt-6 text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[0.98]"
         />
       </section>
 
