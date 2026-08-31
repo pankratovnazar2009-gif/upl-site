@@ -1,11 +1,13 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, findCurrentRound } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
-import { clubs, getClubBySlug } from "@/data/clubs";
+import { clubs } from "@/data/clubs";
 import { StandingsTable } from "@/components/standings-table";
 import { MatchTicker } from "@/components/match-ticker";
+import { NewsBox } from "@/components/news-box";
+import { TopMatchCard } from "@/components/top-match-card";
 import { SplitHeading } from "@/components/motion/split-heading";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { Counter } from "@/components/motion/counter";
@@ -16,10 +18,15 @@ export default async function HomePage() {
   const t = await getTranslations("home");
   const locale = (await getLocale()) as "uk" | "en";
 
-  const [standings, schedule] = await Promise.all([getStandings(), getSchedule()]);
+  const [standings, schedule, featuredNews] = await Promise.all([
+    getStandings(),
+    getSchedule(),
+    getFeaturedNews(5),
+  ]);
   const standingsData = standings ?? standingsFallback;
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
+  const topMatch = currentRound ? findTopMatch(currentRound, standingsData.rows) : null;
 
   return (
     <div>
@@ -54,9 +61,18 @@ export default async function HomePage() {
           </div>
         </Reveal>
 
+        {(featuredNews?.length || topMatch) && (
+          <Reveal delay={0.2} className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+            {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
+            {topMatch && currentRound && (
+              <TopMatchCard round={currentRound.round} match={topMatch} />
+            )}
+          </Reveal>
+        )}
+
         <Reveal
           delay={0.15}
-          className="mt-16 grid grid-cols-3 gap-6 border-t border-fg-faint pt-8 sm:max-w-xl"
+          className="mt-14 grid grid-cols-3 gap-6 border-t border-fg-faint pt-8 sm:max-w-xl"
         >
           <div>
             <Counter
@@ -156,52 +172,6 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
-
-      {/* Next round */}
-      {currentRound && (
-        <section className="border-t border-fg-faint bg-bg-raised">
-          <div className="mx-auto max-w-[900px] px-(--gutter) py-(--section-y-dense)">
-            <Reveal>
-              <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold">
-                {t("nextRound")} · {currentRound.round}
-              </h2>
-            </Reveal>
-            <Reveal
-              stagger
-              as="ul"
-              className="mt-8 flex flex-col divide-y divide-fg-faint border-t border-b border-fg-faint"
-            >
-              {currentRound.matches.slice(0, 6).map((m, i) => {
-                const home = m.homeSlug ? getClubBySlug(m.homeSlug) : undefined;
-                const away = m.awaySlug ? getClubBySlug(m.awaySlug) : undefined;
-                return (
-                  <RevealItem key={i} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-4">
-                    <div className="flex items-center justify-end gap-2.5 text-right">
-                      <span className="truncate text-[14px] font-medium">
-                        {home ? home.name[locale] : m.homeName}
-                      </span>
-                      {home && (
-                        <Image src={home.logo} alt="" width={24} height={24} className={`h-6 w-6 shrink-0 object-contain ${home.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`} />
-                      )}
-                    </div>
-                    <span className="text-[13px] font-medium tabular-nums text-fg-muted">
-                      {m.status === "finished" ? `${m.score?.home} : ${m.score?.away}` : m.time ?? "—"}
-                    </span>
-                    <div className="flex items-center gap-2.5">
-                      {away && (
-                        <Image src={away.logo} alt="" width={24} height={24} className={`h-6 w-6 shrink-0 object-contain ${away.monochromeDark ? "dark:brightness-0 dark:invert" : ""}`} />
-                      )}
-                      <span className="truncate text-[14px] font-medium">
-                        {away ? away.name[locale] : m.awayName}
-                      </span>
-                    </div>
-                  </RevealItem>
-                );
-              })}
-            </Reveal>
-          </div>
-        </section>
-      )}
 
       {/* About */}
       <section className="border-t border-fg-faint">

@@ -210,6 +210,32 @@ export function findCurrentRound(rounds: ScheduleRound[]): ScheduleRound | null 
   return best?.round ?? rounds[rounds.length - 1] ?? null;
 }
 
+/**
+ * The marquee fixture of a round: the match between the two best-placed
+ * clubs in the current table (lowest combined standings position), finished
+ * or not. Falls back to the first match if standings are unavailable.
+ */
+export function findTopMatch(
+  round: ScheduleRound,
+  standings: StandingsRow[],
+): ScheduleMatch | null {
+  if (round.matches.length === 0) return null;
+  const positionBySlug = new Map(
+    standings.filter((r) => r.slug).map((r) => [r.slug as string, r.position]),
+  );
+
+  let best: { match: ScheduleMatch; rank: number } | null = null;
+  for (const match of round.matches) {
+    const homePos = match.homeSlug ? positionBySlug.get(match.homeSlug) : undefined;
+    const awayPos = match.awaySlug ? positionBySlug.get(match.awaySlug) : undefined;
+    if (homePos === undefined || awayPos === undefined) continue;
+    const rank = homePos + awayPos;
+    if (!best || rank < best.rank) best = { match, rank };
+  }
+
+  return best?.match ?? round.matches[0];
+}
+
 export type NewsItem = {
   id: number;
   title: string;
