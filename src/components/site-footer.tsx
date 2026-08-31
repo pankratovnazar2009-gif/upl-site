@@ -72,7 +72,17 @@ export async function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-fg-faint pt-6 text-[12px] text-fg-muted md:flex-row md:items-center md:justify-between">
+        <div className="mt-10 border-t border-fg-faint pt-6 text-[12px] leading-relaxed text-fg-muted">
+          <p>{t("contactsOrg")}</p>
+          <p>
+            {t("contactsLine")},{" "}
+            <a href="mailto:info@upl.ua" className="transition-colors hover:text-fg">
+              info@upl.ua
+            </a>
+          </p>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2 border-t border-fg-faint pt-4 text-[12px] text-fg-muted md:flex-row md:items-center md:justify-between">
           <p>
             © 2008–2026 {t("org")}. {t("rights")}.
           </p>

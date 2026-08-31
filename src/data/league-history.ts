@@ -85,29 +85,39 @@ export const leagueTimeline: TimelineEntry[] = [
 
 export type LeadershipMember = {
   name: string;
+  photo: string;
   role: { uk: string; en: string };
 };
 
 export const leadership: LeadershipMember[] = [
-  { name: "Євген Дикий", role: { uk: "Президент", en: "President" } },
+  {
+    name: "Євген Дикий",
+    photo: "/people/dykyi.jpg",
+    role: { uk: "Президент", en: "President" },
+  },
   {
     name: "Максим Степаненко",
+    photo: "/people/stepanenko.jpg",
     role: { uk: "Голова Дирекції, спортивний директор", en: "Head of Directorate, Sporting Director" },
   },
   {
     name: "Максим Радченко",
+    photo: "/people/radchenko.jpg",
     role: { uk: "Директор з розвитку УПЛ, керівник УПЛ ТБ", en: "Director of Development, Head of UPL TV" },
   },
   {
     name: "Сергій Бухаленков",
+    photo: "/people/bukhalenkov.jpg",
     role: { uk: "Директор Департаменту безпеки та інфраструктури", en: "Director of Security & Infrastructure" },
   },
   {
     name: "Роман Криворучко",
+    photo: "/people/kryvoruchko.jpg",
     role: { uk: "Директор Департаменту міжнародних зв'язків та розвитку", en: "Director of International Relations & Development" },
   },
   {
     name: "Валерій Строкач",
+    photo: "/people/strokach.jpg",
     role: { uk: "Директор Інформаційно-аналітичного департаменту", en: "Director of Information & Analytics" },
   },
 ];
