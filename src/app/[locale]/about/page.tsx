@@ -44,7 +44,7 @@ export default async function AboutPage() {
               alt={person.name}
               width={220}
               height={275}
-              className="h-full w-full object-cover grayscale transition-all duration-500 hover:grayscale-0"
+              className="h-full w-full object-cover"
             />
           </div>
           <p className="mt-3 text-[14px] font-semibold leading-tight">{person.name}</p>

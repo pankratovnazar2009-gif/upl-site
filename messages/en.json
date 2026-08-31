@@ -103,6 +103,8 @@
     "gallery": "Gallery",
     "documents": "Documents",
     "contactsOrg": "Association of Ukrainian Professional Football Clubs \"Premier League\"",
+    "addressLabel": "Address",
+    "emailLabel": "Email",
     "contactsLine": "72 Verkhniy Val St, Kyiv, 04070, Ukraine"
   },
   "common": {

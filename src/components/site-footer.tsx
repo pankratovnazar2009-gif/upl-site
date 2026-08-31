@@ -74,8 +74,11 @@ export async function SiteFooter() {
 
         <div className="mt-10 border-t border-fg-faint pt-6 text-[12px] leading-relaxed text-fg-muted">
           <p>{t("contactsOrg")}</p>
+          <p className="mt-2">
+            <span className="text-fg">{t("addressLabel")}:</span> {t("contactsLine")}
+          </p>
           <p>
-            {t("contactsLine")},{" "}
+            <span className="text-fg">{t("emailLabel")}:</span>{" "}
             <a href="mailto:info@upl.ua" className="transition-colors hover:text-fg">
               info@upl.ua
             </a>
