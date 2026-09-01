@@ -4,6 +4,11 @@ import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
+// The route/locale code is "uk" (ISO 639-1 for Ukrainian) — correct for
+// routing, but reads as "United Kingdom" in a two-letter switcher button.
+// "UA" is what a visitor actually expects to see here.
+const DISPLAY_LABEL: Record<string, string> = { uk: "UA", en: "EN" };
+
 export function LanguageSwitch() {
   const locale = useLocale();
   const pathname = usePathname();
@@ -23,7 +28,7 @@ export function LanguageSwitch() {
               : "text-fg-muted hover:text-fg"
           } ${i > 0 ? "border-l border-fg-faint" : ""}`}
         >
-          {loc.toUpperCase()}
+          {DISPLAY_LABEL[loc] ?? loc.toUpperCase()}
         </button>
       ))}
     </div>
