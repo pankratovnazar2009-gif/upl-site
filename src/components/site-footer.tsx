@@ -9,8 +9,8 @@ export async function SiteFooter() {
   return (
     <footer className="border-t border-fg-faint bg-bg-raised">
       <div className="mx-auto max-w-[1440px] px-(--gutter) py-12 md:py-16">
-        <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-3">
+        <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
             <Image
               src="/logos/upl-mark.png"
               alt="УПЛ"
@@ -18,7 +18,7 @@ export async function SiteFooter() {
               height={40}
               className="h-9 w-9 object-contain opacity-90 brightness-0 invert"
             />
-            <p className="font-display text-[15px] font-bold uppercase tracking-[0.04em] text-fg-muted">
+            <p className="font-display text-[15px] font-bold uppercase leading-none tracking-[0.04em] text-fg-muted">
               {t("org")}
             </p>
           </div>
