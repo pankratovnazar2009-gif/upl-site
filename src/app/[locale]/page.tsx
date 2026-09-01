@@ -141,7 +141,7 @@ export default async function HomePage() {
           >
             {partners.map((partner) => (
               <RevealItem key={partner.name}>
-                <div className="flex h-24 items-center justify-center bg-chip p-5">
+                <div className="flex h-24 items-center justify-center bg-bg p-5">
                   {partner.logo ? (
                     <Image
                       src={partner.logo}
@@ -151,7 +151,7 @@ export default async function HomePage() {
                       className="h-full w-full object-contain opacity-90"
                     />
                   ) : (
-                    <span className="font-display text-[22px] font-black italic tracking-tight text-[#102040]">
+                    <span className="font-display text-[22px] font-black italic tracking-tight text-fg">
                       {partner.name}
                     </span>
                   )}
