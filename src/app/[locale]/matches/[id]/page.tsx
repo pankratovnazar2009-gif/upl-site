@@ -93,6 +93,16 @@ export default async function MatchReportPage({
   const ts = await getTranslations("standings");
   const attendance = afterColon(report.attendance);
   const temperature = afterColon(report.temperature);
+  // upl.ua publishes a report page for every fixture the moment it's
+  // scheduled, long before kickoff — it just has no score, lineups, events
+  // or officials yet. Detect that case and show a lighter preview instead
+  // of a "match report" full of empty sections.
+  const hasSquadData =
+    report.homeFormation.length > 0 ||
+    report.awayFormation.length > 0 ||
+    report.homeLineup.starting.length > 0 ||
+    report.awayLineup.starting.length > 0;
+  const isUpcoming = !report.score;
 
   return (
     <div>
@@ -153,30 +163,50 @@ export default async function MatchReportPage({
                 </span>
               )}
             </div>
+
+            {isUpcoming && (
+              <a
+                href="https://tv.upl.ua/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 flex items-center justify-center gap-1.5 bg-live px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.04em] text-white transition-opacity hover:opacity-85"
+              >
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
+                {t("watchOnUplTv")}
+              </a>
+            )}
           </Reveal>
         </div>
       </section>
 
       <div className="mx-auto max-w-[1040px] px-(--gutter) py-(--section-y-dense)">
-        <Reveal>
-          <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
-          <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.7fr_1fr] lg:items-start lg:gap-6">
-            <div className="order-2 lg:order-1">
-              <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
+        {hasSquadData && (
+          <Reveal>
+            <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
+            <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.7fr_1fr] lg:items-start lg:gap-6">
+              <div className="order-2 lg:order-1">
+                <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
+              </div>
+              <div className="order-1 lg:order-2">
+                <MatchPitch
+                  homeFormation={report.homeFormation}
+                  awayFormation={report.awayFormation}
+                  homeName={report.home.name}
+                  awayName={report.away.name}
+                />
+              </div>
+              <div className="order-3 lg:order-3">
+                <LineupColumn lineup={report.awayLineup} teamName={report.away.name} />
+              </div>
             </div>
-            <div className="order-1 lg:order-2">
-              <MatchPitch
-                homeFormation={report.homeFormation}
-                awayFormation={report.awayFormation}
-                homeName={report.home.name}
-                awayName={report.away.name}
-              />
-            </div>
-            <div className="order-3 lg:order-3">
-              <LineupColumn lineup={report.awayLineup} teamName={report.away.name} />
-            </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        )}
+
+        {!hasSquadData && isUpcoming && (
+          <Reveal className="border border-fg-faint px-6 py-12 text-center">
+            <p className="text-[15px] text-fg-muted">{t("upcomingBody")}</p>
+          </Reveal>
+        )}
 
         {report.events.length > 0 && (
           <Reveal delay={0.15} className="mt-12 border-t border-fg-faint pt-8">
@@ -206,9 +236,11 @@ export default async function MatchReportPage({
             <a href={report.previewUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline decoration-1 underline-offset-4">
               {t("previewLink")} ↗
             </a>
-            <a href={report.reviewUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline decoration-1 underline-offset-4">
-              {t("reviewLink")} ↗
-            </a>
+            {!isUpcoming && (
+              <a href={report.reviewUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline decoration-1 underline-offset-4">
+                {t("reviewLink")} ↗
+              </a>
+            )}
             <a href={report.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline decoration-1 underline-offset-4">
               {t("fullReportLink")} ↗
             </a>

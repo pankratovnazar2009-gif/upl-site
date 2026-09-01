@@ -210,6 +210,33 @@ export function findCurrentRound(rounds: ScheduleRound[]): ScheduleRound | null 
   return best?.round ?? rounds[rounds.length - 1] ?? null;
 }
 
+// upl.ua's calendar/schedule pages don't expose a distinct "in progress"
+// state at all (a fixture is just "scheduled" until it flips straight to a
+// final score) — there's no live-minute feed to scrape. This estimates it
+// instead: a scheduled fixture whose kickoff is in the past but within a
+// generous match-length window is treated as live, with an approximate
+// elapsed-minute count. It's an estimate, not a real live feed — it can't
+// show stoppage time or half-time, and it freezes once a browser tab is
+// left open past the window, but it's honest (derived from the fixture's
+// own real kickoff time) rather than fabricated.
+const MATCH_WINDOW_MINUTES = 130;
+
+/** Approximate live-match state for a still-"scheduled" fixture, or null if it isn't (plausibly) underway right now. */
+export function getLiveMinute(match: ScheduleMatch): number | null {
+  if (match.status !== "scheduled" || !match.time) return null;
+  const dateMatch = match.date.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  const timeMatch = match.time.match(/^(\d{2}):(\d{2})$/);
+  if (!dateMatch || !timeMatch) return null;
+
+  const [, d, mo, y] = dateMatch;
+  const [, h, mi] = timeMatch;
+  const kickoff = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi)).getTime();
+  const elapsedMin = (Date.now() - kickoff) / 60_000;
+  if (elapsedMin < 0 || elapsedMin > MATCH_WINDOW_MINUTES) return null;
+
+  return Math.min(90, Math.round(elapsedMin));
+}
+
 /** The chronologically nearest match that hasn't been played yet, anywhere in the schedule. */
 export function findNextMatch(
   rounds: ScheduleRound[],

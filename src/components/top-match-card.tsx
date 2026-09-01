@@ -2,17 +2,21 @@ import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
-import { reportIdFromUrl, type ScheduleMatch } from "@/lib/upl-source";
+import { getLiveMinute, reportIdFromUrl, type ScheduleMatch } from "@/lib/upl-source";
+import { LiveBadge } from "@/components/live-badge";
 
 function MatchRow({
   match,
   locale,
+  liveLabel,
   size = "lg",
 }: {
   match: ScheduleMatch;
   locale: "uk" | "en";
+  liveLabel: string;
   size?: "lg" | "sm";
 }) {
+  const liveMinute = getLiveMinute(match);
   const home = match.homeSlug ? getClubBySlug(match.homeSlug) : undefined;
   const away = match.awaySlug ? getClubBySlug(match.awaySlug) : undefined;
   const badge = size === "lg" ? 64 : 44;
@@ -41,9 +45,13 @@ function MatchRow({
       </div>
 
       <span className={`font-display shrink-0 font-bold tabular-nums ${resultClass}`}>
-        {match.status === "finished"
-          ? `${match.score?.home} : ${match.score?.away}`
-          : (match.time ?? "—")}
+        {match.status === "finished" ? (
+          `${match.score?.home} : ${match.score?.away}`
+        ) : liveMinute != null ? (
+          <LiveBadge minute={liveMinute} label={liveLabel} />
+        ) : (
+          (match.time ?? "—")
+        )}
       </span>
 
       <div className="flex flex-1 flex-col items-center gap-2">
@@ -78,11 +86,8 @@ export async function TopMatchCard({
   const t = await getTranslations("home");
   const ts = await getTranslations("standings");
   const locale = (await getLocale()) as "uk" | "en";
-  // upl.ua links a fixture's result cell to a report page even before kickoff
-  // (it just has no score/lineups yet) — only route finished matches in.
-  const topReportId = match.status === "finished" ? reportIdFromUrl(match.reportUrl) : null;
-  const nextReportId =
-    nextMatch?.status === "finished" ? reportIdFromUrl(nextMatch.reportUrl) : null;
+  const topReportId = reportIdFromUrl(match.reportUrl);
+  const nextReportId = nextMatch ? reportIdFromUrl(nextMatch.reportUrl) : null;
 
   return (
     <div className="flex h-full flex-col border border-fg-faint">
@@ -100,11 +105,11 @@ export async function TopMatchCard({
           href={`/matches/${topReportId}`}
           className="flex flex-1 flex-col items-center justify-center px-6 py-4 text-center transition-colors hover:bg-bg-raised"
         >
-          <MatchRow match={match} locale={locale} size="lg" />
+          <MatchRow match={match} locale={locale} liveLabel={ts("live")} size="lg" />
         </Link>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-4 text-center">
-          <MatchRow match={match} locale={locale} size="lg" />
+          <MatchRow match={match} locale={locale} liveLabel={ts("live")} size="lg" />
         </div>
       )}
 
@@ -124,11 +129,11 @@ export async function TopMatchCard({
               href={`/matches/${nextReportId}`}
               className="flex flex-col items-center justify-center px-6 py-4 text-center transition-colors hover:bg-bg-raised"
             >
-              <MatchRow match={nextMatch} locale={locale} size="sm" />
+              <MatchRow match={nextMatch} locale={locale} liveLabel={ts("live")} size="sm" />
             </Link>
           ) : (
             <div className="flex flex-col items-center justify-center px-6 py-4 text-center">
-              <MatchRow match={nextMatch} locale={locale} size="sm" />
+              <MatchRow match={nextMatch} locale={locale} liveLabel={ts("live")} size="sm" />
             </div>
           )}
         </>

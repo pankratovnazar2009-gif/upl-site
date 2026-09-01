@@ -111,7 +111,9 @@
     "previewLink": "Preview on upl.ua",
     "reviewLink": "Match review on upl.ua",
     "fullReportLink": "Full referee report on upl.ua",
-    "sourceNote": "Lineups, events, and stats synced from the official UPL site"
+    "sourceNote": "Lineups, events, and stats synced from the official UPL site",
+    "watchOnUplTv": "Watch on UPL.TV",
+    "upcomingBody": "Lineups and stats will appear here once the match kicks off."
   },
   "footer": {
     "org": "UPL",

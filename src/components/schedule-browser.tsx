@@ -5,7 +5,9 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
-import { reportIdFromUrl, type ScheduleRound } from "@/lib/upl-source";
+import { reportIdFromUrl, type ScheduleMatch, type ScheduleRound } from "@/lib/upl-source";
+import { useLiveMinute } from "@/lib/use-live-minute";
+import { LiveBadge } from "@/components/live-badge";
 
 function groupByDate(round: ScheduleRound) {
   const groups = new Map<string, ScheduleRound["matches"]>();
@@ -39,6 +41,37 @@ function TeamCell({ slug, name, align }: { slug: string | null; name: string; al
       )}
       <span className="truncate text-[14px] font-medium sm:text-[15px]">{label}</span>
     </div>
+  );
+}
+
+function ScheduleRow({ match, liveLabel }: { match: ScheduleMatch; liveLabel: string }) {
+  const liveMinute = useLiveMinute(match);
+  const reportId = reportIdFromUrl(match.reportUrl);
+
+  const inner = (
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3.5 sm:gap-6">
+      <TeamCell slug={match.homeSlug} name={match.homeName} align="right" />
+      <div className="flex min-w-[64px] justify-center">
+        {match.status === "finished" ? (
+          <span className="font-display text-[16px] font-bold tabular-nums">
+            {match.score?.home} : {match.score?.away}
+          </span>
+        ) : liveMinute != null ? (
+          <LiveBadge minute={liveMinute} label={liveLabel} />
+        ) : (
+          <span className="text-[13px] font-medium tabular-nums text-fg-muted">{match.time ?? "—"}</span>
+        )}
+      </div>
+      <TeamCell slug={match.awaySlug} name={match.awayName} align="left" />
+    </div>
+  );
+
+  return reportId ? (
+    <Link href={`/matches/${reportId}`} className="transition-colors duration-200 hover:bg-bg-raised">
+      {inner}
+    </Link>
+  ) : (
+    <div>{inner}</div>
   );
 }
 
@@ -93,40 +126,9 @@ export function ScheduleBrowser({
           <div key={date}>
             <p className="mb-3 text-label uppercase tracking-[0.1em] text-fg-muted">{date}</p>
             <div className="flex flex-col divide-y divide-fg-faint/60">
-              {matches.map((m, i) => {
-                const inner = (
-                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3.5 sm:gap-6">
-                    <TeamCell slug={m.homeSlug} name={m.homeName} align="right" />
-                    <div className="flex min-w-[64px] justify-center">
-                      {m.status === "finished" ? (
-                        <span className="font-display text-[16px] font-bold tabular-nums">
-                          {m.score?.home} : {m.score?.away}
-                        </span>
-                      ) : (
-                        <span className="text-[13px] font-medium tabular-nums text-fg-muted">
-                          {m.time ?? "—"}
-                        </span>
-                      )}
-                    </div>
-                    <TeamCell slug={m.awaySlug} name={m.awayName} align="left" />
-                  </div>
-                );
-                // upl.ua links a fixture's result cell to a report page even before
-                // kickoff (it just has no score/lineups yet) — only route finished
-                // matches to our internal report page.
-                const reportId = m.status === "finished" ? reportIdFromUrl(m.reportUrl) : null;
-                return reportId ? (
-                  <Link
-                    key={i}
-                    href={`/matches/${reportId}`}
-                    className="transition-colors duration-200 hover:bg-bg-raised"
-                  >
-                    {inner}
-                  </Link>
-                ) : (
-                  <div key={i}>{inner}</div>
-                );
-              })}
+              {matches.map((m, i) => (
+                <ScheduleRow key={i} match={m} liveLabel={t("live")} />
+              ))}
             </div>
           </div>
         ))}
