@@ -32,10 +32,13 @@ export async function StandingsTable({
   rows,
   limit,
   showLegend,
+  zones = true,
 }: {
   rows: StandingsRow[];
   limit?: number;
   showLegend?: boolean;
+  /** Position-based zone stripes only make sense for the real overall table — turn them off for a home-only/away-only split. */
+  zones?: boolean;
 }) {
   const t = await getTranslations("standings");
   const locale = await getLocale();
@@ -61,7 +64,7 @@ export async function StandingsTable({
           {shown.map((row) => {
             const club = row.slug ? getClubBySlug(row.slug) : undefined;
             const displayName = club ? club.name[locale as "uk" | "en"] : row.fullName;
-            const zone = getZone(row.position, rows.length);
+            const zone = zones ? getZone(row.position, rows.length) : null;
             const rowContent = (
               <>
                 <td className="py-3 pr-2 text-[13px] text-fg-muted">

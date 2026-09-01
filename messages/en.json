@@ -59,6 +59,11 @@
     "scheduled": "Scheduled",
     "sourceNote": "Data synced from the official UPL source",
     "updatedAt": "Updated",
+    "split": {
+      "overall": "Overall",
+      "home": "Home",
+      "away": "Away"
+    },
     "zone": {
       "ucl": "Champions League qualification (League phase)",
       "europe": "Europa League / Conference League qualification",

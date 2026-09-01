@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch, findNextMatch } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch, findNextMatch, computeSplitStandings } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
 import { StandingsTable } from "@/components/standings-table";
+import { StandingsSplitTabs } from "@/components/standings-split-tabs";
 import { MatchTicker } from "@/components/match-ticker";
 import { NewsBox } from "@/components/news-box";
 import { TopMatchCard } from "@/components/top-match-card";
@@ -77,7 +78,15 @@ export default async function HomePage() {
           </Reveal>
 
           <Reveal delay={0.1} className="mt-8">
-            <StandingsTable rows={standingsData.rows} limit={6} />
+            <StandingsSplitTabs
+              overallSlot={<StandingsTable rows={standingsData.rows} limit={6} />}
+              homeSlot={
+                <StandingsTable rows={computeSplitStandings(scheduleData.rounds, "home")} limit={6} zones={false} />
+              }
+              awaySlot={
+                <StandingsTable rows={computeSplitStandings(scheduleData.rounds, "away")} limit={6} zones={false} />
+              }
+            />
           </Reveal>
         </div>
       </section>

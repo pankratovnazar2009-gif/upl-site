@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { getStandings, getSchedule, findCurrentRound } from "@/lib/upl-source";
+import { getStandings, getSchedule, findCurrentRound, computeSplitStandings } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { StandingsTable } from "@/components/standings-table";
+import { StandingsSplitTabs } from "@/components/standings-split-tabs";
 import { ScheduleBrowser } from "@/components/schedule-browser";
 import { TournamentTabs } from "@/components/tournament-tabs";
 import { Reveal } from "@/components/motion/reveal";
@@ -39,7 +40,13 @@ export default async function TournamentPage() {
 
       <div className="mt-12">
         <TournamentTabs
-          tableSlot={<StandingsTable rows={standingsData.rows} showLegend />}
+          tableSlot={
+            <StandingsSplitTabs
+              overallSlot={<StandingsTable rows={standingsData.rows} showLegend />}
+              homeSlot={<StandingsTable rows={computeSplitStandings(scheduleData.rounds, "home")} zones={false} />}
+              awaySlot={<StandingsTable rows={computeSplitStandings(scheduleData.rounds, "away")} zones={false} />}
+            />
+          }
           scheduleSlot={
             <ScheduleBrowser
               rounds={scheduleData.rounds}

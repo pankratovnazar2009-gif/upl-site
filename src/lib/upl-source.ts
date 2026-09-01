@@ -237,6 +237,76 @@ export function getLiveMinute(match: ScheduleMatch): number | null {
   return Math.min(90, Math.round(elapsedMin));
 }
 
+/**
+ * Home-only / away-only standings, computed locally from the finished
+ * matches already in the schedule data — upl.ua's table page doesn't
+ * publish this split itself, so there's nothing to scrape; it's derived
+ * from the same real results the main table itself is built from.
+ */
+export function computeSplitStandings(
+  rounds: ScheduleRound[],
+  split: "home" | "away",
+): StandingsRow[] {
+  type Tally = {
+    fullName: string;
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsFor: number;
+    goalsAgainst: number;
+  };
+  const tally = new Map<string, Tally>();
+
+  for (const round of rounds) {
+    for (const m of round.matches) {
+      if (m.status !== "finished" || !m.score) continue;
+      const slug = split === "home" ? m.homeSlug : m.awaySlug;
+      if (!slug) continue;
+      const ownGoals = split === "home" ? m.score.home : m.score.away;
+      const oppGoals = split === "home" ? m.score.away : m.score.home;
+      const fullName = split === "home" ? m.homeName : m.awayName;
+
+      const row: Tally = tally.get(slug) ?? {
+        fullName,
+        played: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+      };
+      row.played += 1;
+      if (ownGoals > oppGoals) row.wins += 1;
+      else if (ownGoals < oppGoals) row.losses += 1;
+      else row.draws += 1;
+      row.goalsFor += ownGoals;
+      row.goalsAgainst += oppGoals;
+      tally.set(slug, row);
+    }
+  }
+
+  const rows: StandingsRow[] = [...tally.entries()].map(([slug, r]) => ({
+    position: 0,
+    slug,
+    fullName: r.fullName,
+    played: r.played,
+    wins: r.wins,
+    draws: r.draws,
+    losses: r.losses,
+    goalsFor: r.goalsFor,
+    goalsAgainst: r.goalsAgainst,
+    goalDiff: r.goalsFor - r.goalsAgainst,
+    points: r.wins * 3 + r.draws,
+  }));
+
+  rows.sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor);
+  rows.forEach((r, i) => {
+    r.position = i + 1;
+  });
+  return rows;
+}
+
 /** A club's last N finished matches, most recent first — for the club page's recent-form section. */
 export function getClubRecentMatches(
   rounds: ScheduleRound[],
