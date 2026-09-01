@@ -39,7 +39,7 @@ export default async function TournamentPage() {
 
       <div className="mt-12">
         <TournamentTabs
-          tableSlot={<StandingsTable rows={standingsData.rows} />}
+          tableSlot={<StandingsTable rows={standingsData.rows} showLegend />}
           scheduleSlot={
             <ScheduleBrowser
               rounds={scheduleData.rounds}

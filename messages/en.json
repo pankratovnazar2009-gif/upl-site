@@ -58,7 +58,13 @@
     "finished": "Finished",
     "scheduled": "Scheduled",
     "sourceNote": "Data synced from the official UPL source",
-    "updatedAt": "Updated"
+    "updatedAt": "Updated",
+    "zone": {
+      "ucl": "Champions League qualification (League phase)",
+      "europe": "Europa League / Conference League qualification",
+      "playoff": "UPL promotion/relegation play-off",
+      "relegation": "Relegation — Persha Liha"
+    }
   },
   "clubs": {
     "title": "Clubs",

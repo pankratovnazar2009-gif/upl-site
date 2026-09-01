@@ -4,12 +4,38 @@ import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
 import type { StandingsRow } from "@/lib/upl-source";
 
+type Zone = "ucl" | "europe" | "playoff" | "relegation";
+
+const ZONE_COLOR: Record<Zone, string> = {
+  ucl: "#3b6fd8",
+  europe: "#8a3552",
+  playoff: "#c9820f",
+  relegation: "#c0392b",
+};
+
+/**
+ * UPL 2026/27 European & relegation slots (verified, not guessed — league
+ * champion into UCL Q1, 2nd/3rd into UEL or UECL depending on that season's
+ * Cup winner so both share one "Europe" zone here, 13th/14th into the
+ * promotion/relegation play-off, 15th/16th relegated outright).
+ */
+function getZone(position: number, total: number): Zone | null {
+  if (position === 1) return "ucl";
+  if (position === 2 || position === 3) return "europe";
+  const fromBottom = total - position + 1;
+  if (fromBottom === 1 || fromBottom === 2) return "relegation";
+  if (fromBottom === 3 || fromBottom === 4) return "playoff";
+  return null;
+}
+
 export async function StandingsTable({
   rows,
   limit,
+  showLegend,
 }: {
   rows: StandingsRow[];
   limit?: number;
+  showLegend?: boolean;
 }) {
   const t = await getTranslations("standings");
   const locale = await getLocale();
@@ -35,19 +61,19 @@ export async function StandingsTable({
           {shown.map((row) => {
             const club = row.slug ? getClubBySlug(row.slug) : undefined;
             const displayName = club ? club.name[locale as "uk" | "en"] : row.fullName;
+            const zone = getZone(row.position, rows.length);
             const rowContent = (
               <>
                 <td className="py-3 pr-2 text-[13px] text-fg-muted">
-                  <span
-                    className={
-                      row.position <= 3
-                        ? "text-fg font-semibold"
-                        : row.position >= 15
-                          ? "text-state-loss"
-                          : undefined
-                    }
-                  >
-                    {row.position}
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="h-3 w-[3px] shrink-0 rounded-[1px]"
+                      style={{ backgroundColor: zone ? ZONE_COLOR[zone] : "transparent" }}
+                    />
+                    <span className={row.position <= 3 ? "text-fg font-semibold" : undefined}>
+                      {row.position}
+                    </span>
                   </span>
                 </td>
                 <td className="py-3 pr-2">
@@ -94,6 +120,21 @@ export async function StandingsTable({
           })}
         </tbody>
       </table>
+
+      {showLegend && (
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-fg-muted">
+          {(["ucl", "europe", "playoff", "relegation"] as const).map((zone) => (
+            <span key={zone} className="inline-flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                style={{ backgroundColor: ZONE_COLOR[zone] }}
+              />
+              {t(`zone.${zone}`)}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
