@@ -3,8 +3,12 @@ import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { clubs, getClubBySlug } from "@/data/clubs";
+import { getClubSquad } from "@/lib/transfermarkt-source";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { LegendCard } from "@/components/legend-card";
+import { PlayerCard } from "@/components/player-card";
+
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return clubs.map((c) => ({ slug: c.slug }));
@@ -34,6 +38,16 @@ export default async function ClubPage({
   const locale = (await getLocale()) as "uk" | "en";
   const t = await getTranslations("clubs");
   const name = club.name[locale];
+  const squad = await getClubSquad(club.transfermarkt, locale);
+
+  const squadGroups = squad
+    ? squad.players.reduce<Array<{ label: string; players: typeof squad.players }>>((groups, p) => {
+        const last = groups[groups.length - 1];
+        if (last && last.label === p.position) last.players.push(p);
+        else groups.push({ label: p.position, players: [p] });
+        return groups;
+      }, [])
+    : [];
 
   const facts: Array<[string, string]> = [
     [t("founded"), club.founded],
@@ -100,7 +114,28 @@ export default async function ClubPage({
         </a>
       </Reveal>
 
-      <Reveal delay={0.2} className="mt-10 border-t border-fg-faint pt-8">
+      {squadGroups.length > 0 && (
+        <Reveal delay={0.2} className="mt-10 border-t border-fg-faint pt-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-[20px] font-bold">{t("squadTitle")}</h2>
+            <p className="text-[12px] text-fg-muted">{t("squadSourceNote")}</p>
+          </div>
+          <div className="mt-6 flex flex-col gap-8">
+            {squadGroups.map((group) => (
+              <div key={group.label}>
+                <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{group.label}</p>
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+                  {group.players.map((player) => (
+                    <PlayerCard key={player.profileUrl} player={player} locale={locale} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      )}
+
+      <Reveal delay={0.25} className="mt-10 border-t border-fg-faint pt-8">
         <h2 className="font-display text-[20px] font-bold">{t("honoursTitle")}</h2>
         {club.honours.length > 0 ? (
           <ul className="mt-4 flex flex-col gap-2.5">

@@ -72,7 +72,9 @@
     "honoursTitle": "Титули та досягнення",
     "noHonours": "Клуб ще на шляху до перших нагород елітного дивізіону.",
     "legendsTitle": "Легенди клубу",
-    "backToClubs": "Усі клуби"
+    "backToClubs": "Усі клуби",
+    "squadTitle": "Склад команди",
+    "squadSourceNote": "Вік, амплуа та ринкова вартість — за даними Transfermarkt"
   },
   "news": {
     "title": "Новини",

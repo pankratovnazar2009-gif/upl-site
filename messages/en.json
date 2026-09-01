@@ -72,7 +72,9 @@
     "honoursTitle": "Honours",
     "noHonours": "Still building its way to a first top-flight honour.",
     "legendsTitle": "Club legends",
-    "backToClubs": "All clubs"
+    "backToClubs": "All clubs",
+    "squadTitle": "Squad",
+    "squadSourceNote": "Age, position, and market value via Transfermarkt"
   },
   "news": {
     "title": "News",

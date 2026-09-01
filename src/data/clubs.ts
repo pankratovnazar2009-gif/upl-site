@@ -11,6 +11,8 @@ export type Club = {
   slug: string;
   /** upl.ua internal club id — /ua/clubs/view/{uplId} */
   uplId: number;
+  /** Transfermarkt's club id + the URL slug it currently resolves under (transfermarkt.world) — used to pull the squad (position/age/nationality/market value/photo). */
+  transfermarkt: { id: number; slug: string };
   logo: string;
   /** True for crests with no light/white ink at all (e.g. solid black) — they
    *  need to be force-inverted to white in dark theme or they vanish against
@@ -37,6 +39,7 @@ export const clubs: Club[] = [
   {
     slug: "bukovyna",
     uplId: 1270,
+    transfermarkt: { id: 21903, slug: "bukovina-cernovcy" },
     logo: "/logos/clubs/bukovyna.png",
     city: { uk: "Чернівці", en: "Chernivtsi" },
     name: { uk: "Буковина", en: "Bukovyna" },
@@ -53,6 +56,7 @@ export const clubs: Club[] = [
   {
     slug: "veres",
     uplId: 1811,
+    transfermarkt: { id: 26459, slug: "nk-veres-rovno" },
     logo: "/logos/clubs/veres.png",
     city: { uk: "Рівне", en: "Rivne" },
     name: { uk: "Верес", en: "Veres" },
@@ -81,6 +85,7 @@ export const clubs: Club[] = [
   {
     slug: "dynamo",
     uplId: 7,
+    transfermarkt: { id: 338, slug: "dinamo-kiev" },
     logo: "/logos/clubs/dynamo.png",
     city: { uk: "Київ", en: "Kyiv" },
     name: { uk: "Динамо", en: "Dynamo Kyiv" },
@@ -136,6 +141,7 @@ export const clubs: Club[] = [
   {
     slug: "epicentr",
     uplId: 1821,
+    transfermarkt: { id: 84122, slug: "epicentr-kamenec-podolskij" },
     logo: "/logos/clubs/epicentr.png",
     city: { uk: "Кам'янець-Подільський", en: "Kamianets-Podilskyi" },
     name: { uk: "Епіцентр", en: "Epicentr" },
@@ -152,6 +158,7 @@ export const clubs: Club[] = [
   {
     slug: "zorya",
     uplId: 11,
+    transfermarkt: { id: 10690, slug: "zara-lugansk" },
     logo: "/logos/clubs/zorya.png",
     city: { uk: "Луганськ", en: "Luhansk" },
     name: { uk: "Зоря", en: "Zorya Luhansk" },
@@ -181,6 +188,7 @@ export const clubs: Club[] = [
   {
     slug: "karpaty",
     uplId: 1864,
+    transfermarkt: { id: 85465, slug: "karpaty-lvov" },
     logo: "/logos/clubs/karpaty.png",
     city: { uk: "Львів", en: "Lviv" },
     name: { uk: "Карпати", en: "Karpaty Lviv" },
@@ -218,6 +226,7 @@ export const clubs: Club[] = [
   {
     slug: "kolos",
     uplId: 1806,
+    transfermarkt: { id: 48332, slug: "kolos-kovalevka" },
     logo: "/logos/clubs/kolos.png",
     monochromeDark: true,
     city: { uk: "Ковалівка", en: "Kovalivka" },
@@ -247,6 +256,7 @@ export const clubs: Club[] = [
   {
     slug: "kryvbas",
     uplId: 1478,
+    transfermarkt: { id: 3592, slug: "krivbass-krivoj-rog" },
     logo: "/logos/clubs/kryvbas.png",
     city: { uk: "Кривий Ріг", en: "Kryvyi Rih" },
     name: { uk: "Кривбас", en: "Kryvbas" },
@@ -267,6 +277,7 @@ export const clubs: Club[] = [
   {
     slug: "kudrivka",
     uplId: 1854,
+    transfermarkt: { id: 87883, slug: "fk-kudrovka" },
     logo: "/logos/clubs/kudrivka.png",
     city: { uk: "Кудрівка", en: "Kudrivka" },
     name: { uk: "Кудрівка", en: "Kudrivka" },
@@ -283,6 +294,7 @@ export const clubs: Club[] = [
   {
     slug: "livyi-bereh",
     uplId: 1847,
+    transfermarkt: { id: 86209, slug: "levyj-bereg-kiev" },
     logo: "/logos/clubs/livyi-bereh.png",
     city: { uk: "Київ", en: "Kyiv" },
     name: { uk: "Лівий Берег", en: "Livyi Bereh" },
@@ -299,6 +311,7 @@ export const clubs: Club[] = [
   {
     slug: "lnz",
     uplId: 1813,
+    transfermarkt: { id: 63007, slug: "lnz-cerkassy" },
     logo: "/logos/clubs/lnz.png",
     city: { uk: "Черкаси", en: "Cherkasy" },
     name: { uk: "ЛНЗ", en: "LNZ Cherkasy" },
@@ -315,6 +328,7 @@ export const clubs: Club[] = [
   {
     slug: "obolon",
     uplId: 1565,
+    transfermarkt: { id: 39097, slug: "obolon-kiev" },
     logo: "/logos/clubs/obolon.png",
     city: { uk: "Київ", en: "Kyiv" },
     name: { uk: "Оболонь", en: "Obolon Kyiv" },
@@ -331,6 +345,7 @@ export const clubs: Club[] = [
   {
     slug: "polissya",
     uplId: 1814,
+    transfermarkt: { id: 53646, slug: "polese-zitomir" },
     logo: "/logos/clubs/polissya.png",
     city: { uk: "Житомир", en: "Zhytomyr" },
     name: { uk: "Полісся", en: "Polissya Zhytomyr" },
@@ -351,6 +366,7 @@ export const clubs: Club[] = [
   {
     slug: "kharkiv",
     uplId: 1810,
+    transfermarkt: { id: 55686, slug: "fk-harkov" },
     logo: "/logos/clubs/kharkiv.png",
     city: { uk: "Харків", en: "Kharkiv" },
     name: { uk: "Харків", en: "FC Kharkiv" },
@@ -367,6 +383,7 @@ export const clubs: Club[] = [
   {
     slug: "chornomorets",
     uplId: 27,
+    transfermarkt: { id: 6992, slug: "cernomorec-odessa" },
     logo: "/logos/clubs/chornomorets.png",
     city: { uk: "Одеса", en: "Odesa" },
     name: { uk: "Чорноморець", en: "Chornomorets Odesa" },
@@ -404,6 +421,7 @@ export const clubs: Club[] = [
   {
     slug: "shakhtar",
     uplId: 28,
+    transfermarkt: { id: 660, slug: "sahter-doneck" },
     logo: "/logos/clubs/shakhtar.png",
     city: { uk: "Донецьк", en: "Donetsk" },
     name: { uk: "Шахтар", en: "Shakhtar Donetsk" },
