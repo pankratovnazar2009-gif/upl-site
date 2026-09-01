@@ -158,10 +158,13 @@ export default async function MatchReportPage({
       </section>
 
       <div className="mx-auto max-w-[1040px] px-(--gutter) py-(--section-y-dense)">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-start">
-          <Reveal>
-            <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
-            <div className="mt-5">
+        <Reveal>
+          <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
+          <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.7fr_1fr] lg:items-start lg:gap-6">
+            <div className="order-2 lg:order-1">
+              <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
+            </div>
+            <div className="order-1 lg:order-2">
               <MatchPitch
                 homeFormation={report.homeFormation}
                 awayFormation={report.awayFormation}
@@ -169,16 +172,11 @@ export default async function MatchReportPage({
                 awayName={report.away.name}
               />
             </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <h2 className="font-display text-[20px] font-bold">{t("lineupsTitle")}</h2>
-            <div className="mt-5 flex flex-col gap-8">
-              <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
+            <div className="order-3 lg:order-3">
               <LineupColumn lineup={report.awayLineup} teamName={report.away.name} />
             </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
 
         {report.events.length > 0 && (
           <Reveal delay={0.15} className="mt-12 border-t border-fg-faint pt-8">

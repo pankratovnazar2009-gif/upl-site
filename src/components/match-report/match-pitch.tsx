@@ -20,26 +20,29 @@ function insetX(x: number) {
   return MARGIN_X + (x / 100) * (100 - 2 * MARGIN_X);
 }
 
+// Identity on the pitch is the shirt number alone — the matching name lives
+// in the squad list beside it, so a caption under every one of the 22 chips
+// would just repeat that. A photo chip still gets a small number tag pinned
+// on its corner so the number reads at a glance either way.
 function Chip({ chip, top }: { chip: MatchFormationChip; top: number }) {
   const photo = hasRealPhoto(chip.photo) ? chip.photo : null;
 
   return (
-    <div
-      className="absolute flex w-[64px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 sm:w-[80px]"
-      style={{ left: `${insetX(chip.x)}%`, top: `${top}%` }}
-    >
-      <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border-2 border-accent bg-bg-raised sm:h-10 sm:w-10">
+    <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${insetX(chip.x)}%`, top: `${top}%` }}>
+      <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border-2 border-accent bg-bg-raised shadow-[0_1px_5px_rgba(0,0,0,0.45)] sm:h-11 sm:w-11">
         {photo ? (
-          <Image src={photo} alt="" fill sizes="40px" className="object-cover" />
+          <Image src={photo} alt="" fill sizes="44px" className="object-cover" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center font-display text-[11px] font-bold text-accent sm:text-[12px]">
+          <span className="flex h-full w-full items-center justify-center font-display text-[12px] font-bold text-accent sm:text-[13px]">
             {chip.number ?? "?"}
           </span>
         )}
       </div>
-      <span className="w-full truncate text-center text-[9.5px] font-semibold leading-tight text-fg drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] sm:text-[11px]">
-        {chip.name}
-      </span>
+      {photo && chip.number != null && (
+        <span className="absolute -bottom-1 -right-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border border-bg bg-accent px-0.5 font-display text-[9px] font-bold text-accent-fg sm:h-[19px] sm:min-w-[19px] sm:text-[10px]">
+          {chip.number}
+        </span>
+      )}
     </div>
   );
 }
