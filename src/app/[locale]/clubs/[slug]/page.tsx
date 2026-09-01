@@ -2,11 +2,51 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { clubs, getClubBySlug } from "@/data/clubs";
+import { clubs, getClubBySlug, type Club } from "@/data/clubs";
 import { getClubSquad } from "@/lib/transfermarkt-source";
+import { getSchedule, getClubRecentMatches, reportIdFromUrl, type ScheduleMatch } from "@/lib/upl-source";
+import { scheduleFallback } from "@/data/fallback";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { LegendCard } from "@/components/legend-card";
 import { PlayerCard } from "@/components/player-card";
+
+function RecentResultRow({ club, match, locale }: { club: Club; match: ScheduleMatch; locale: "uk" | "en" }) {
+  const isHome = match.homeSlug === club.slug;
+  const own = isHome ? match.score?.home : match.score?.away;
+  const opp = isHome ? match.score?.away : match.score?.home;
+  const outcome = own == null || opp == null ? null : own > opp ? "win" : own < opp ? "loss" : "draw";
+  const letter = { win: "W", draw: "D", loss: "L" } as const;
+  const bg = { win: "bg-state-win", draw: "bg-state-draw", loss: "bg-state-loss" } as const;
+  const opponentSlug = isHome ? match.awaySlug : match.homeSlug;
+  const opponentClub = opponentSlug ? getClubBySlug(opponentSlug) : undefined;
+  const opponentName = opponentClub ? opponentClub.name[locale] : isHome ? match.awayName : match.homeName;
+  const reportId = reportIdFromUrl(match.reportUrl);
+
+  const inner = (
+    <div className="flex items-center gap-3 py-2.5">
+      <span
+        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-[11px] font-bold text-white ${outcome ? bg[outcome] : "bg-fg-faint"}`}
+      >
+        {outcome ? letter[outcome] : "—"}
+      </span>
+      <span className="flex-1 truncate text-[13.5px] font-medium">
+        {isHome ? "vs" : "@"} {opponentName}
+      </span>
+      <span className="font-display shrink-0 text-[13.5px] font-bold tabular-nums">
+        {own}:{opp}
+      </span>
+      <span className="w-20 shrink-0 text-right text-[11.5px] text-fg-muted">{match.date}</span>
+    </div>
+  );
+
+  return reportId ? (
+    <Link href={`/matches/${reportId}`} className="block transition-colors hover:text-accent">
+      {inner}
+    </Link>
+  ) : (
+    inner
+  );
+}
 
 export const revalidate = 3600;
 
@@ -39,6 +79,8 @@ export default async function ClubPage({
   const t = await getTranslations("clubs");
   const name = club.name[locale];
   const squad = await getClubSquad(club.transfermarkt, locale);
+  const schedule = (await getSchedule()) ?? scheduleFallback;
+  const recentMatches = getClubRecentMatches(schedule.rounds, club.slug, 5);
 
   const squadGroups = squad
     ? squad.players.reduce<Array<{ label: string; players: typeof squad.players }>>((groups, p) => {
@@ -54,6 +96,7 @@ export default async function ClubPage({
     ...(club.refounded ? ([[t("refounded"), club.refounded]] as Array<[string, string]>) : []),
     [t("stadium"), club.stadium],
     [club.leaderRole[locale], club.leaderName],
+    [t("coach"), club.coach],
   ];
 
   return (
@@ -130,6 +173,17 @@ export default async function ClubPage({
                   ))}
                 </div>
               </div>
+            ))}
+          </div>
+        </Reveal>
+      )}
+
+      {recentMatches.length > 0 && (
+        <Reveal delay={0.22} className="mt-10 border-t border-fg-faint pt-8">
+          <h2 className="font-display text-[20px] font-bold">{t("recentFormTitle")}</h2>
+          <div className="mt-4 flex flex-col divide-y divide-fg-faint/60">
+            {recentMatches.map((m, i) => (
+              <RecentResultRow key={i} club={club} match={m} locale={locale} />
             ))}
           </div>
         </Reveal>

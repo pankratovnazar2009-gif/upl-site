@@ -237,6 +237,19 @@ export function getLiveMinute(match: ScheduleMatch): number | null {
   return Math.min(90, Math.round(elapsedMin));
 }
 
+/** A club's last N finished matches, most recent first — for the club page's recent-form section. */
+export function getClubRecentMatches(
+  rounds: ScheduleRound[],
+  clubSlug: string,
+  count = 5,
+): ScheduleMatch[] {
+  return rounds
+    .flatMap((r) => r.matches)
+    .filter((m) => m.status === "finished" && (m.homeSlug === clubSlug || m.awaySlug === clubSlug))
+    .sort((a, b) => parseUplDate(b.date) - parseUplDate(a.date))
+    .slice(0, count);
+}
+
 /** The chronologically nearest match that hasn't been played yet, anywhere in the schedule. */
 export function findNextMatch(
   rounds: ScheduleRound[],
