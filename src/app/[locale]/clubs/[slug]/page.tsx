@@ -6,13 +6,33 @@ import { clubs, getClubBySlug, type Club } from "@/data/clubs";
 import {
   getSchedule,
   getClubRecentMatches,
+  getClubKits,
   getUplClubSquad,
+  type KitSet,
   reportIdFromUrl,
   type ScheduleMatch,
 } from "@/lib/upl-source";
 import { scheduleFallback } from "@/data/fallback";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { LegendCard } from "@/components/legend-card";
+
+function KitStrip({ kit, label }: { kit: KitSet; label: string }) {
+  const pieces = [kit.shirt, kit.shorts, kit.socks].filter((src): src is string => Boolean(src));
+  if (pieces.length === 0) return null;
+
+  return (
+    <div>
+      <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{label}</p>
+      <div className="mt-2 flex items-end gap-2 border border-fg-faint bg-bg-raised px-3 py-3">
+        {pieces.map((src, i) => (
+          <div key={i} className="relative h-20 flex-1">
+            <Image src={src} alt="" fill sizes="80px" className="object-contain" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function RecentResultRow({ club, match, locale }: { club: Club; match: ScheduleMatch; locale: "uk" | "en" }) {
   const isHome = match.homeSlug === club.slug;
@@ -84,6 +104,7 @@ export default async function ClubPage({
   const name = club.name[locale];
   const squad = await getUplClubSquad(club.uplId, locale);
   const schedule = (await getSchedule()) ?? scheduleFallback;
+  const kits = await getClubKits(club.slug, schedule.rounds, locale);
   const recentMatches = getClubRecentMatches(schedule.rounds, club.slug, 5);
 
   const squadGroups = squad
@@ -202,6 +223,25 @@ export default async function ClubPage({
                 </div>
               </div>
             ))}
+          </div>
+        </Reveal>
+      )}
+
+      {(kits.home || kits.away) && (
+        <Reveal delay={0.21} className="mt-10 border-t border-fg-faint pt-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-[20px] font-bold">{t("kitsTitle")}</h2>
+            <p className="text-[12px] text-fg-muted">{t("kitsSourceNote")}</p>
+          </div>
+          <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+            {kits.home && <KitStrip kit={kits.home.outfield} label={t("kitHome")} />}
+            {kits.away && <KitStrip kit={kits.away.outfield} label={t("kitAway")} />}
+            {kits.home && (
+              <KitStrip kit={kits.home.keeper} label={`${t("kitKeeper")} · ${t("kitHome")}`} />
+            )}
+            {kits.away && (
+              <KitStrip kit={kits.away.keeper} label={`${t("kitKeeper")} · ${t("kitAway")}`} />
+            )}
           </div>
         </Reveal>
       )}

@@ -92,7 +92,12 @@
     "legendsTitle": "Club legends",
     "backToClubs": "All clubs",
     "squadTitle": "Squad",
-    "squadSourceNote": "Squad and photos from the official UPL site"
+    "squadSourceNote": "Squad and photos from the official UPL site",
+    "kitsTitle": "Kits",
+    "kitHome": "Home",
+    "kitAway": "Away",
+    "kitKeeper": "Goalkeeper",
+    "kitsSourceNote": "The strips the team wore in its most recent matches"
   },
   "news": {
     "title": "News",

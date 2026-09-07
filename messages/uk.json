@@ -92,7 +92,12 @@
     "legendsTitle": "Легенди клубу",
     "backToClubs": "Усі клуби",
     "squadTitle": "Склад команди",
-    "squadSourceNote": "Склад і фото — з офіційного сайту УПЛ"
+    "squadSourceNote": "Склад і фото — з офіційного сайту УПЛ",
+    "kitsTitle": "Форма команди",
+    "kitHome": "Домашня",
+    "kitAway": "Виїзна",
+    "kitKeeper": "Воротарська",
+    "kitsSourceNote": "Комплекти, в яких команда виходила на останні матчі"
   },
   "news": {
     "title": "Новини",

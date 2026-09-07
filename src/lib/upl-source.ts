@@ -849,6 +849,71 @@ export async function getPlayerProfile(
   };
 }
 
+export type KitSet = {
+  shirt: string | null;
+  shorts: string | null;
+  socks: string | null;
+};
+
+export type ClubKits = {
+  /** As worn in the club's latest home match. */
+  home: { outfield: KitSet; keeper: KitSet } | null;
+  /** As worn in its latest away match — usually the change strip. */
+  away: { outfield: KitSet; keeper: KitSet } | null;
+};
+
+/**
+ * upl.ua draws each team's actual strip on every match report (keeper and
+ * outfield, shirt/shorts/socks), so the kits shown here are the ones really
+ * worn rather than a product shot scraped off a store. Home and away sets
+ * come from the club's most recent match at each venue.
+ */
+function parseKits(
+  $: cheerio.CheerioAPI,
+  side: "home" | "away",
+): { outfield: KitSet; keeper: KitSet } | null {
+  const block = $(".team-players").eq(side === "home" ? 0 : 1);
+  const images = block
+    .find("table.kits img.kit")
+    .map((_, el) => $(el).attr("src") || "")
+    .get()
+    .map((src) => (src ? `${BASE}${src}` : null));
+  if (images.length < 6) return null;
+
+  // rows are [keeper, outfield] x [shirt, shorts, socks]
+  return {
+    keeper: { shirt: images[0], shorts: images[2], socks: images[4] },
+    outfield: { shirt: images[1], shorts: images[3], socks: images[5] },
+  };
+}
+
+export async function getClubKits(
+  clubSlug: string,
+  rounds: ScheduleRound[],
+  locale: "uk" | "en" = "uk",
+): Promise<ClubKits> {
+  const langPath = locale === "en" ? "en" : "ua";
+  const played = rounds
+    .flatMap((r) => r.matches)
+    .filter((m) => m.status === "finished" && m.reportUrl)
+    .sort((a, b) => parseUplDate(b.date) - parseUplDate(a.date));
+
+  const latest = (side: "home" | "away") =>
+    played.find((m) => (side === "home" ? m.homeSlug : m.awaySlug) === clubSlug);
+
+  const load = async (side: "home" | "away") => {
+    const match = latest(side);
+    const reportId = match ? reportIdFromUrl(match.reportUrl) : null;
+    if (!reportId) return null;
+    const html = await fetchHtml(`/${langPath}/report/view/${reportId}/report`);
+    if (!html) return null;
+    return parseKits(cheerio.load(html), side);
+  };
+
+  const [home, away] = await Promise.all([load("home"), load("away")]);
+  return { home, away };
+}
+
 export async function getMatchReport(
   id: number,
   locale: "uk" | "en" = "uk",
