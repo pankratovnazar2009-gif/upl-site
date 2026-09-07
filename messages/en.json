@@ -92,7 +92,7 @@
     "legendsTitle": "Club legends",
     "backToClubs": "All clubs",
     "squadTitle": "Squad",
-    "squadSourceNote": "Age, position, and market value via Transfermarkt"
+    "squadSourceNote": "Squad and photos from the official UPL site"
   },
   "news": {
     "title": "News",
@@ -148,5 +148,24 @@
   "common": {
     "loading": "Loading…",
     "vs": "—"
+  },
+  "player": {
+    "backToClub": "Back to squad",
+    "seasonStats": "2026/27 season stats",
+    "games": "Appearances",
+    "starts": "starts",
+    "minutes": "Minutes",
+    "goals": "Goals",
+    "yellows": "Yellow cards",
+    "reds": "Red cards",
+    "cleanSheets": "Clean sheets",
+    "birthDate": "Date of birth",
+    "citizenship": "Citizenship",
+    "height": "Height",
+    "weight": "Weight",
+    "club": "Club",
+    "noStats": "This player hasn't featured yet this season.",
+    "sourceNote": "Photo and stats from the official UPL site",
+    "profileLink": "Profile on upl.ua"
   }
 }

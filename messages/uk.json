@@ -92,7 +92,7 @@
     "legendsTitle": "Легенди клубу",
     "backToClubs": "Усі клуби",
     "squadTitle": "Склад команди",
-    "squadSourceNote": "Вік, амплуа та ринкова вартість — за даними Transfermarkt"
+    "squadSourceNote": "Склад і фото — з офіційного сайту УПЛ"
   },
   "news": {
     "title": "Новини",
@@ -148,5 +148,24 @@
   "common": {
     "loading": "Завантаження…",
     "vs": "—"
+  },
+  "player": {
+    "backToClub": "До складу команди",
+    "seasonStats": "Статистика сезону 2026/27",
+    "games": "Матчі",
+    "starts": "у старті",
+    "minutes": "Хвилини",
+    "goals": "Голи",
+    "yellows": "Жовті картки",
+    "reds": "Червоні картки",
+    "cleanSheets": "Сухі матчі",
+    "birthDate": "Дата народження",
+    "citizenship": "Громадянство",
+    "height": "Зріст",
+    "weight": "Вага",
+    "club": "Клуб",
+    "noStats": "Цього сезону гравець ще не виходив на поле.",
+    "sourceNote": "Фото та статистика — з офіційного сайту УПЛ",
+    "profileLink": "Профіль на upl.ua"
   }
 }

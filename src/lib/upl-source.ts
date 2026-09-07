@@ -660,6 +660,195 @@ export async function getBroadcastersForMatches(
   return Object.fromEntries(entries.filter(([, list]) => list.length > 0));
 }
 
+export type UplSquadPlayer = {
+  /** upl.ua people id — /ua/people/view/{id} */
+  id: number;
+  name: string;
+  number: number | null;
+  position: string;
+  photo: string | null;
+};
+
+/** upl.ua serves club-page thumbnails through a signed resizer; the unsigned original is the same path without /glide and the query. */
+function originalUploadUrl(src: string): string | null {
+  if (!src) return null;
+  const path = src.split("?")[0];
+  const unsized = path.startsWith("/glide/") ? path.slice("/glide".length) : path;
+  return unsized.startsWith("/uploads/") ? `${BASE}${unsized}` : `${BASE}${path}`;
+}
+
+const WHITESPACE = new RegExp("\\s+", "g");
+const tidy = (text: string) => text.replace(WHITESPACE, " ").trim();
+
+/**
+ * A club's registered squad straight from upl.ua — the photos there are the
+ * league's own studio shots (far better than the thumbnails elsewhere), and
+ * every player links to a page carrying this season's numbers.
+ */
+export async function getUplClubSquad(
+  uplClubId: number,
+  locale: "uk" | "en" = "uk",
+): Promise<UplSquadPlayer[] | null> {
+  const langPath = locale === "en" ? "en" : "ua";
+  const html = await fetchHtml(`/${langPath}/clubs/view/${uplClubId}`);
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  const players: UplSquadPlayer[] = [];
+
+  $(".people-list .list-page-item").each((_, el) => {
+    const $el = $(el);
+    const link = $el.find("a[href*='/people/view/']").first();
+    const id = Number((link.attr("href") || "").split("/").pop());
+    if (!id) return;
+
+    const numberText = $el.find(".number").first().text().trim();
+    players.push({
+      id,
+      name: tidy(link.text()),
+      number: numberText ? Number(numberText) : null,
+      position: $el.find(".role").first().text().trim(),
+      photo: originalUploadUrl($el.find(".image img").attr("src") || ""),
+    });
+  });
+
+  // upl.ua lists the squad alphabetically; football convention is keepers first.
+  // Order matters here: "півзахисник" contains "захисник" as a substring.
+  const positionRank: Array<[string[], number]> = [
+    [["воротар", "goalkeeper"], 0],
+    [["півзахисник", "midfield"], 2],
+    [["захисник", "defender", "back"], 1],
+    [["нападник", "forward", "striker"], 3],
+  ];
+  const rank = (position: string) => {
+    const lower = position.toLowerCase();
+    const hit = positionRank.find(([keys]) => keys.some((k) => lower.includes(k)));
+    return hit ? hit[1] : 9;
+  };
+  players.sort((a, b) => rank(a.position) - rank(b.position));
+
+  return players.length > 0 ? players : null;
+}
+
+export type PlayerSeasonStats = {
+  games: number;
+  starts: number | null;
+  minutes: number;
+  goals: number;
+  yellows: number;
+  reds: number;
+  /** Keepers only — upl.ua doesn't publish it, so it's counted off the player's own match list. */
+  cleanSheets: number | null;
+};
+
+export type PlayerProfile = {
+  id: number;
+  name: string;
+  number: number | null;
+  position: string | null;
+  photo: string | null;
+  birthDate: string | null;
+  citizenship: string | null;
+  height: string | null;
+  weight: string | null;
+  clubName: string | null;
+  clubSlug: string | null;
+  stats: PlayerSeasonStats | null;
+  sourceUrl: string;
+};
+
+const STAT_PATTERNS = {
+  games: new RegExp("(\\d+)\\s*\\((\\d+)\\)"),
+  minutes: new RegExp("(?:Хвилин|Minutes)[^\\d]*(\\d+)", "i"),
+  goals: new RegExp("(?:М'ячів|М’ячів|Goals)[^\\d]*(\\d+)", "i"),
+  yellows: new RegExp("(?:Жовтих|Yellow)[^\\d]*(\\d+)", "i"),
+  reds: new RegExp("(?:Червоних|Red)[^\\d]*(\\d+)", "i"),
+  score: new RegExp("^(\\d+)\\s*:\\s*(\\d+)$"),
+  keeper: new RegExp("воротар|goalkeeper", "i"),
+};
+
+function statValue(text: string, pattern: RegExp): number {
+  const m = text.match(pattern);
+  return m ? Number(m[1]) : 0;
+}
+
+export async function getPlayerProfile(
+  id: number,
+  locale: "uk" | "en" = "uk",
+): Promise<PlayerProfile | null> {
+  const langPath = locale === "en" ? "en" : "ua";
+  const html = await fetchHtml(`/${langPath}/people/view/${id}`);
+  if (!html) return null;
+
+  const $ = cheerio.load(html);
+  const info = $(".people-info");
+  if (info.length === 0) return null;
+
+  const rowValue = (labelRe: RegExp): string | null => {
+    let value: string | null = null;
+    info.find(".flex-center").each((_, el) => {
+      const cols = $(el).find("> div");
+      if (value === null && labelRe.test($(cols[0]).text().trim())) {
+        value = tidy($(cols[1]).text());
+      }
+    });
+    return value;
+  };
+
+  const clubName = rowValue(new RegExp("клуб|club", "i"));
+  const clubSlug =
+    clubs.find((c) => c.name.uk === clubName || c.name.en === clubName)?.slug ?? null;
+  const numberText = rowValue(new RegExp("номер|number", "i"));
+  const footer = tidy($(".statistic-table tfoot").text());
+  const gamesMatch = footer.match(STAT_PATTERNS.games);
+
+  // upl.ua has no keeper-specific columns, so a shut-out is counted off his
+  // own appearance list: a match he played where the other side didn't score.
+  const isKeeper = STAT_PATTERNS.keeper.test($(".amplua").first().text());
+  let cleanSheets: number | null = null;
+  if (isKeeper && clubName) {
+    let count = 0;
+    $(".statistic-table tbody tr").each((_, el) => {
+      const $row = $(el);
+      const score = $row.find(".resualt").text().trim().match(STAT_PATTERNS.score);
+      const minutes = Number($row.find("> td").eq(1).text().trim());
+      if (!score || !minutes) return;
+      const playedAtHome = tidy($row.find(".first-team").text()) === clubName;
+      const conceded = playedAtHome ? Number(score[2]) : Number(score[1]);
+      if (conceded === 0) count += 1;
+    });
+    cleanSheets = count;
+  }
+
+  const stats: PlayerSeasonStats | null = footer
+    ? {
+        games: gamesMatch ? Number(gamesMatch[1]) : 0,
+        starts: gamesMatch ? Number(gamesMatch[2]) : null,
+        minutes: statValue(footer, STAT_PATTERNS.minutes),
+        goals: statValue(footer, STAT_PATTERNS.goals),
+        yellows: statValue(footer, STAT_PATTERNS.yellows),
+        reds: statValue(footer, STAT_PATTERNS.reds),
+        cleanSheets,
+      }
+    : null;
+
+  return {
+    id,
+    name: tidy(info.find(".name").first().text()),
+    number: numberText ? Number(numberText) : null,
+    position: $(".amplua").first().text().trim() || null,
+    photo: originalUploadUrl(info.find(".right-part .image img").attr("src") || ""),
+    birthDate: rowValue(new RegExp("народж|birth", "i")),
+    citizenship: rowValue(new RegExp("громадянств|citizenship|nationality", "i")),
+    height: info.find(".item.height .value").text().trim() || null,
+    weight: info.find(".item.weight .value").text().trim() || null,
+    clubName,
+    clubSlug,
+    stats,
+    sourceUrl: `${BASE}/${langPath}/people/view/${id}`,
+  };
+}
+
 export async function getMatchReport(
   id: number,
   locale: "uk" | "en" = "uk",

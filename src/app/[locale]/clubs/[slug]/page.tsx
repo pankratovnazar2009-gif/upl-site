@@ -3,12 +3,16 @@ import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { clubs, getClubBySlug, type Club } from "@/data/clubs";
-import { getClubSquad } from "@/lib/transfermarkt-source";
-import { getSchedule, getClubRecentMatches, reportIdFromUrl, type ScheduleMatch } from "@/lib/upl-source";
+import {
+  getSchedule,
+  getClubRecentMatches,
+  getUplClubSquad,
+  reportIdFromUrl,
+  type ScheduleMatch,
+} from "@/lib/upl-source";
 import { scheduleFallback } from "@/data/fallback";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { LegendCard } from "@/components/legend-card";
-import { PlayerCard } from "@/components/player-card";
 
 function RecentResultRow({ club, match, locale }: { club: Club; match: ScheduleMatch; locale: "uk" | "en" }) {
   const isHome = match.homeSlug === club.slug;
@@ -78,14 +82,14 @@ export default async function ClubPage({
   const locale = (await getLocale()) as "uk" | "en";
   const t = await getTranslations("clubs");
   const name = club.name[locale];
-  const squad = await getClubSquad(club.transfermarkt, locale);
+  const squad = await getUplClubSquad(club.uplId, locale);
   const schedule = (await getSchedule()) ?? scheduleFallback;
   const recentMatches = getClubRecentMatches(schedule.rounds, club.slug, 5);
 
   const squadGroups = squad
-    ? squad.players.reduce<Array<{ label: string; players: typeof squad.players }>>((groups, p) => {
-        const last = groups[groups.length - 1];
-        if (last && last.label === p.position) last.players.push(p);
+    ? squad.reduce<Array<{ label: string; players: typeof squad }>>((groups, p) => {
+        const group = groups.find((g) => g.label === p.position);
+        if (group) group.players.push(p);
         else groups.push({ label: p.position, players: [p] });
         return groups;
       }, [])
@@ -169,7 +173,31 @@ export default async function ClubPage({
                 <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{group.label}</p>
                 <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
                   {group.players.map((player) => (
-                    <PlayerCard key={player.profileUrl} player={player} locale={locale} />
+                    <Link key={player.id} href={`/players/${player.id}`} className="group block">
+                      <div className="relative aspect-[3/4] w-full overflow-hidden bg-bg-raised">
+                        {player.photo ? (
+                          <Image
+                            src={player.photo}
+                            alt=""
+                            fill
+                            sizes="(min-width: 1024px) 200px, 45vw"
+                            className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center font-display text-[28px] font-bold text-fg-faint">
+                            {player.number ?? "?"}
+                          </span>
+                        )}
+                        {player.number != null && (
+                          <span className="absolute left-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full border border-bg bg-accent px-1 font-display text-[11px] font-bold text-accent-fg">
+                            {player.number}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2.5 truncate text-[13px] font-semibold leading-tight transition-colors group-hover:text-accent">
+                        {player.name}
+                      </p>
+                    </Link>
                   ))}
                 </div>
               </div>
