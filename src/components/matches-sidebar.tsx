@@ -41,31 +41,31 @@ function MatchRow({ match, locale, liveLabel }: { match: ScheduleMatch; locale: 
   const liveMinute = getLiveMinute(match);
 
   const inner = (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-2.5">
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 py-3">
       <div className="flex min-w-0 items-center justify-end gap-2 text-right">
-        <span className="truncate text-[12.5px] font-medium">
+        <span className="truncate text-[13.5px] font-medium">
           {home ? home.name[locale] : match.homeName}
         </span>
         {home && (
           <Image
             src={home.logo}
             alt=""
-            width={18}
-            height={18}
-            className={`h-[18px] w-[18px] shrink-0 object-contain ${home.monochromeDark ? "brightness-0 invert" : ""}`}
+            width={22}
+            height={22}
+            className={`h-[22px] w-[22px] shrink-0 object-contain ${home.monochromeDark ? "brightness-0 invert" : ""}`}
           />
         )}
       </div>
 
-      <span className="flex min-w-[46px] justify-center">
+      <span className="flex min-w-[52px] justify-center">
         {match.status === "finished" ? (
-          <span className="font-display text-[13px] font-bold tabular-nums">
+          <span className="font-display text-[15px] font-bold tabular-nums">
             {match.score?.home}–{match.score?.away}
           </span>
         ) : liveMinute != null ? (
           <LiveBadge minute={liveMinute} label={liveLabel} />
         ) : (
-          <span className="text-[11.5px] font-medium tabular-nums text-fg-muted">
+          <span className="text-[12.5px] font-medium tabular-nums text-fg-muted">
             {match.time ?? "—"}
           </span>
         )}
@@ -76,12 +76,12 @@ function MatchRow({ match, locale, liveLabel }: { match: ScheduleMatch; locale: 
           <Image
             src={away.logo}
             alt=""
-            width={18}
-            height={18}
-            className={`h-[18px] w-[18px] shrink-0 object-contain ${away.monochromeDark ? "brightness-0 invert" : ""}`}
+            width={22}
+            height={22}
+            className={`h-[22px] w-[22px] shrink-0 object-contain ${away.monochromeDark ? "brightness-0 invert" : ""}`}
           />
         )}
-        <span className="truncate text-[12.5px] font-medium">
+        <span className="truncate text-[13.5px] font-medium">
           {away ? away.name[locale] : match.awayName}
         </span>
       </div>
@@ -108,10 +108,10 @@ export async function MatchesSidebar({ round, locale }: { round: ScheduleRound; 
       <div className="flex items-center justify-between gap-3 border-b border-fg-faint bg-bg-raised px-4 py-3">
         <span className="text-label uppercase tracking-[0.08em] text-accent">{t("matchesTitle")}</span>
         <Link
-          href="/tournament"
-          className="shrink-0 text-[11px] font-medium uppercase tracking-[0.06em] text-fg-muted transition-colors hover:text-accent"
+          href="/tournament?tab=schedule"
+          className="shrink-0 text-[11.5px] font-medium uppercase tracking-[0.06em] text-fg-muted transition-colors hover:text-accent"
         >
-          {t("standingsCta")} →
+          {ts("tabSchedule")} →
         </Link>
       </div>
 

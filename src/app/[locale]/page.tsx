@@ -21,7 +21,7 @@ export default async function HomePage() {
   const [standings, schedule, featuredNews] = await Promise.all([
     getStandings(),
     getSchedule(),
-    getFeaturedNews(6),
+    getFeaturedNews(5),
   ]);
   const standingsData = standings ?? standingsFallback;
   const scheduleData = schedule ?? scheduleFallback;
@@ -34,7 +34,7 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-6 sm:pt-8 sm:pb-8">
         {(featuredNews?.length || currentRound) && (
-          <Reveal className="grid grid-cols-1 gap-3 xl:grid-cols-[2.3fr_1fr] xl:items-start">
+          <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.75fr_1fr] lg:items-start">
             {featuredNews && featuredNews.length > 0 && <FeaturedNews items={featuredNews} />}
             {currentRound && <MatchesSidebar round={currentRound} locale={locale} />}
           </Reveal>

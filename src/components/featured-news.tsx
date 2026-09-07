@@ -10,10 +10,10 @@ const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /**
  * A Premier-League-style news module — one big story, a handful of others
- * picked from beside it — but with our own twist instead of a straight
- * copy: the side list doesn't just link out, clicking one swaps it into
- * the big preview on the left so you can browse headlines and photos
- * before committing to leaving the site.
+ * to pick from underneath it — but with our own twist instead of a straight
+ * copy: the picker row doesn't just link out, clicking a card swaps it into
+ * the big story above so you can browse headlines and photos before
+ * committing to leaving the site.
  */
 export function FeaturedNews({ items }: { items: NewsItem[] }) {
   const t = useTranslations("home");
@@ -25,12 +25,12 @@ export function FeaturedNews({ items }: { items: NewsItem[] }) {
   const active = slides[index];
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.7fr_1fr]">
+    <div className="flex flex-col gap-3">
       <a
         href={active.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative block aspect-[4/3] overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-video lg:h-full lg:aspect-auto"
+        className="group relative block aspect-[4/3] overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-[16/9] lg:aspect-[16/8]"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -46,7 +46,7 @@ export function FeaturedNews({ items }: { items: NewsItem[] }) {
               alt=""
               fill
               priority={index === 0}
-              sizes="(min-width: 1024px) 45vw, 100vw"
+              sizes="(min-width: 1024px) 65vw, 100vw"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             />
           </motion.div>
@@ -54,45 +54,52 @@ export function FeaturedNews({ items }: { items: NewsItem[] }) {
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-5">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-7">
           <p className="text-label uppercase tracking-[0.08em] text-white/70">
             {t("latestNews")} · {active.date}
           </p>
-          <p className="mt-2 font-display text-[19px] font-bold leading-snug text-white sm:text-[23px]">
+          <p className="mt-2.5 max-w-3xl font-display text-[22px] font-bold leading-snug text-white sm:text-[28px]">
             {active.title}
           </p>
           {active.excerpt && (
-            <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-white/70 sm:text-[13.5px]">
+            <p className="mt-2.5 max-w-2xl line-clamp-2 text-[13.5px] leading-relaxed text-white/70 sm:text-[15px]">
               {active.excerpt}
             </p>
           )}
         </div>
       </a>
 
-      <div className="flex flex-col divide-y divide-fg-faint border border-fg-faint">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {slides.map((item, i) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setIndex(i)}
             aria-current={i === index}
-            className={`flex items-center gap-3 p-2.5 text-left transition-colors duration-200 ${
-              i === index ? "bg-bg-raised" : "hover:bg-bg-raised/60"
+            className={`group flex flex-col border text-left transition-colors duration-200 ${
+              i === index ? "border-accent bg-bg-raised" : "border-fg-faint hover:bg-bg-raised/60"
             }`}
           >
-            <span className="relative h-12 w-16 shrink-0 overflow-hidden bg-brand-navy sm:h-14 sm:w-20">
-              <Image src={item.image!} alt="" fill sizes="80px" className="object-cover" />
-              {i === index && <span className="absolute inset-0 border-2 border-accent" />}
+            <span className="relative block aspect-[16/10] w-full overflow-hidden bg-brand-navy">
+              <Image
+                src={item.image!}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 15vw, 45vw"
+                className={`object-cover transition-all duration-300 ${
+                  i === index ? "" : "brightness-[0.85] group-hover:brightness-100"
+                }`}
+              />
             </span>
-            <span className="min-w-0 flex-1">
+            <span className="flex flex-1 flex-col p-2.5">
               <span
-                className={`block line-clamp-2 text-[12.5px] font-semibold leading-snug ${
+                className={`line-clamp-3 text-[12.5px] font-semibold leading-snug ${
                   i === index ? "text-accent" : "text-fg"
                 }`}
               >
                 {item.title}
               </span>
-              <span className="mt-1 block text-[10.5px] text-fg-muted">{item.date}</span>
+              <span className="mt-auto pt-2 text-[10.5px] text-fg-muted">{item.date}</span>
             </span>
           </button>
         ))}

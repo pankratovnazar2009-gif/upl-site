@@ -6,12 +6,15 @@ import { useTranslations } from "next-intl";
 export function TournamentTabs({
   tableSlot,
   scheduleSlot,
+  initialTab = "table",
 }: {
   tableSlot: ReactNode;
   scheduleSlot: ReactNode;
+  /** Lets other pages deep-link straight to the fixtures tab (/tournament?tab=schedule). */
+  initialTab?: "table" | "schedule";
 }) {
   const t = useTranslations("standings");
-  const [tab, setTab] = useState<"table" | "schedule">("table");
+  const [tab, setTab] = useState<"table" | "schedule">(initialTab);
 
   return (
     <div>

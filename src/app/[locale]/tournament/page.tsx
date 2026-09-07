@@ -9,8 +9,13 @@ import { Reveal } from "@/components/motion/reveal";
 
 export const revalidate = 300;
 
-export default async function TournamentPage() {
+export default async function TournamentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const t = await getTranslations("standings");
+  const { tab } = await searchParams;
 
   const [standings, schedule] = await Promise.all([
     getStandings(),
@@ -40,6 +45,7 @@ export default async function TournamentPage() {
 
       <div className="mt-12">
         <TournamentTabs
+          initialTab={tab === "schedule" ? "schedule" : "table"}
           tableSlot={
             <StandingsSplitTabs
               overallSlot={<StandingsTable rows={standingsData.rows} showLegend />}

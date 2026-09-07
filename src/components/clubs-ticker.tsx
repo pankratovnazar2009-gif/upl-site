@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import type { Club } from "@/data/clubs";
 
@@ -53,7 +53,6 @@ function ClubChip({
  * travel distance), just with each chip a club instead of a fixture.
  */
 export function ClubsTicker({ clubs }: { clubs: Club[] }) {
-  const t = useTranslations("nav");
   const locale = useLocale() as "uk" | "en";
   const trackRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
@@ -111,12 +110,6 @@ export function ClubsTicker({ clubs }: { clubs: Club[] }) {
         onPointerLeave={onPointerUp}
         className="mx-auto flex max-w-[1440px] cursor-grab items-stretch overflow-x-auto active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="flex shrink-0 items-center border-r border-fg-faint px-5 py-3.5">
-          <span className="font-display whitespace-nowrap text-[12px] font-bold uppercase tracking-[0.06em] text-accent">
-            {t("clubs")} · 16
-          </span>
-        </div>
-
         {clubs.map((club) => (
           <ClubChip key={club.slug} club={club} locale={locale} hasDraggedRef={hasDraggedRef} />
         ))}
