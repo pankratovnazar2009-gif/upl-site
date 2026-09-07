@@ -15,15 +15,6 @@ export type Partner = {
  */
 export const partners: Partner[] = [
   {
-    name: "VBET Україна",
-    logo: "/logos/partners/vbet.png",
-    role: { uk: "Титульний партнер", en: "Title partner" },
-    note: {
-      uk: "Підтримує чемпіонат і розвиток українського футболу.",
-      en: "Supports the championship and the development of Ukrainian football.",
-    },
-  },
-  {
     name: "BETKING",
     role: { uk: "Стратегічний партнер", en: "Strategic partner" },
     note: {

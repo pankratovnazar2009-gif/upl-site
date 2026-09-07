@@ -67,50 +67,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Clubs preview */}
-      <section className="border-t border-fg-faint">
-        <div className="mx-auto max-w-[1200px] px-(--gutter) py-(--section-y-dense)">
-          <Reveal className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold">
-                {t("clubsTitle")}
-              </h2>
-              <p className="mt-2 text-[14px] text-fg-muted">{t("clubsSubtitle")}</p>
-            </div>
-            <Link
-              href="/clubs"
-              className="text-[13px] font-medium uppercase tracking-[0.08em] text-accent underline decoration-1 underline-offset-4"
-            >
-              {t("clubsCta")} →
-            </Link>
-          </Reveal>
-
-          <Reveal
-            stagger
-            as="ul"
-            className="mt-10 grid grid-cols-4 gap-px border border-fg-faint bg-fg-faint sm:grid-cols-8"
-          >
-            {clubs.map((club) => (
-              <RevealItem key={club.slug} className="bg-bg">
-                <Link
-                  href={`/clubs/${club.slug}`}
-                  className="group flex aspect-square items-center justify-center p-4 transition-colors duration-300 hover:bg-bg-raised"
-                  title={club.name[locale]}
-                >
-                  <Image
-                    src={club.logo}
-                    alt={club.name[locale]}
-                    width={44}
-                    height={44}
-                    className={`h-full w-full max-h-11 max-w-11 object-contain grayscale transition-all duration-300 group-hover:grayscale-0 ${club.monochromeDark ? "brightness-0 invert group-hover:brightness-100 group-hover:invert-0" : ""}`}
-                  />
-                </Link>
-              </RevealItem>
-            ))}
-          </Reveal>
-        </div>
-      </section>
-
       {/* Partners */}
       <section className="border-t border-fg-faint">
         <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y)">
@@ -122,7 +78,7 @@ export default async function HomePage() {
           <Reveal
             stagger
             as="ul"
-            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-2 lg:grid-cols-4"
+            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-3"
           >
             {partners.map((partner) => (
               <RevealItem key={partner.name}>
