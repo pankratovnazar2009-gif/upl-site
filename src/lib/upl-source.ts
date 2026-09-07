@@ -318,6 +318,27 @@ export function computeSplitStandings(
   return rows;
 }
 
+/**
+ * Every fixture still to come, chronologically — the homepage sidebar
+ * scrolls through the whole run of them rather than just one round, and a
+ * postponed match keeps its original round number on upl.ua, so ordering
+ * by date (not by round) is what actually reads as "what's next".
+ */
+export function getUpcomingMatches(rounds: ScheduleRound[]): ScheduleMatch[] {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const cutoff = Date.UTC(
+    startOfToday.getFullYear(),
+    startOfToday.getMonth(),
+    startOfToday.getDate(),
+  );
+
+  return rounds
+    .flatMap((r) => r.matches)
+    .filter((m) => parseUplDate(m.date) >= cutoff)
+    .sort((a, b) => parseUplDate(a.date) - parseUplDate(b.date));
+}
+
 /** A club's last N finished matches, most recent first — for the club page's recent-form section. */
 export function getClubRecentMatches(
   rounds: ScheduleRound[],
@@ -615,11 +636,17 @@ export async function getMatchBroadcasters(reportId: number): Promise<Broadcaste
   return found;
 }
 
-/** Broadcasters for every fixture in a round, keyed by report id. */
-export async function getRoundBroadcasters(
-  round: ScheduleRound,
+/**
+ * Broadcasters for a list of fixtures, keyed by report id. Each one costs a
+ * request to its own report page, so this only looks up the next handful —
+ * channels for fixtures further out generally aren't announced yet anyway.
+ */
+export async function getBroadcastersForMatches(
+  matches: ScheduleMatch[],
+  limit = 12,
 ): Promise<Record<number, Broadcaster[]>> {
-  const ids = round.matches
+  const ids = matches
+    .slice(0, limit)
     .map((m) => reportIdFromUrl(m.reportUrl))
     .filter((id): id is number => id !== null);
 

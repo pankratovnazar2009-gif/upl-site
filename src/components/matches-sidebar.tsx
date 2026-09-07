@@ -3,13 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
 import {
+  getBroadcastersForMatches,
   getLiveMinute,
-  getRoundBroadcasters,
   groupMatchesByDate,
   reportIdFromUrl,
   type Broadcaster,
   type ScheduleMatch,
-  type ScheduleRound,
 } from "@/lib/upl-source";
 import { LiveBadge } from "@/components/live-badge";
 
@@ -125,11 +124,17 @@ function MatchRow({
   );
 }
 
-export async function MatchesSidebar({ round, locale }: { round: ScheduleRound; locale: "uk" | "en" }) {
+export async function MatchesSidebar({
+  matches,
+  locale,
+}: {
+  matches: ScheduleMatch[];
+  locale: "uk" | "en";
+}) {
   const t = await getTranslations("home");
   const ts = await getTranslations("standings");
-  const groups = groupMatchesByDate(round.matches);
-  const broadcasters = await getRoundBroadcasters(round);
+  const groups = groupMatchesByDate(matches);
+  const broadcasters = await getBroadcastersForMatches(matches);
   const labels = { today: t("today"), tomorrow: t("tomorrow"), yesterday: t("yesterday") };
 
   return (
@@ -144,25 +149,29 @@ export async function MatchesSidebar({ round, locale }: { round: ScheduleRound; 
         </Link>
       </div>
 
-      <div className="flex-1 divide-y divide-fg-faint px-4">
-        {groups.map(([date, matches]) => (
-          <div key={date} className="py-2.5">
-            <p className="text-label uppercase tracking-[0.08em] text-fg-muted">
-              {dayLabel(date, locale, labels)}
-            </p>
-            <div className="divide-y divide-fg-faint/60">
-              {matches.map((m, i) => (
-                <MatchRow
-                  key={i}
-                  match={m}
-                  locale={locale}
-                  liveLabel={ts("live")}
-                  broadcasters={broadcasters[reportIdFromUrl(m.reportUrl) ?? -1] ?? []}
-                />
-              ))}
+      <div className="relative min-h-0 flex-1">
+        <div className="absolute inset-0 divide-y divide-fg-faint overflow-y-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {groups.map(([date, dayMatches]) => (
+            <div key={date} className="py-2.5">
+              <p className="text-label uppercase tracking-[0.08em] text-fg-muted">
+                {dayLabel(date, locale, labels)}
+              </p>
+              <div className="divide-y divide-fg-faint/60">
+                {dayMatches.map((m, i) => (
+                  <MatchRow
+                    key={i}
+                    match={m}
+                    locale={locale}
+                    liveLabel={ts("live")}
+                    broadcasters={broadcasters[reportIdFromUrl(m.reportUrl) ?? -1] ?? []}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-bg to-transparent" />
       </div>
     </div>
   );

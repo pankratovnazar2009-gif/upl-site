@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, getUpcomingMatches } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
@@ -25,6 +25,7 @@ export default async function HomePage() {
   const standingsData = standings ?? standingsFallback;
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
+  const upcomingMatches = getUpcomingMatches(scheduleData.rounds);
 
   return (
     <div>
@@ -32,10 +33,12 @@ export default async function HomePage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-6 sm:pt-8 sm:pb-8">
-        {(featuredNews?.length || currentRound) && (
-          <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.75fr_1fr] lg:items-start">
+        {(featuredNews?.length || upcomingMatches.length > 0) && (
+          <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.75fr_1fr]">
             {featuredNews && featuredNews.length > 0 && <FeaturedNews items={featuredNews} />}
-            {currentRound && <MatchesSidebar round={currentRound} locale={locale} />}
+            {upcomingMatches.length > 0 && (
+              <MatchesSidebar matches={upcomingMatches} locale={locale} />
+            )}
           </Reveal>
         )}
       </section>
