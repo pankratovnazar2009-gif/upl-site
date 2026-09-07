@@ -103,6 +103,7 @@ export default async function MatchReportPage({
     report.homeLineup.starting.length > 0 ||
     report.awayLineup.starting.length > 0;
   const isUpcoming = !report.score;
+  const watchLinks = report.broadcasters.filter((b) => b.url);
 
   return (
     <div>
@@ -164,16 +165,21 @@ export default async function MatchReportPage({
               )}
             </div>
 
-            {isUpcoming && (
-              <a
-                href="https://tv.upl.ua/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 flex items-center justify-center gap-1.5 bg-live px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.04em] text-white transition-opacity hover:opacity-85"
-              >
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-                {t("watchOnUplTv")}
-              </a>
+            {isUpcoming && watchLinks.length > 0 && (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+                {watchLinks.map((channel) => (
+                  <a
+                    key={channel.name}
+                    href={channel.url!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 bg-live px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.04em] text-white transition-opacity hover:opacity-85"
+                  >
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
+                    {t("watchOn", { channel: channel.name })}
+                  </a>
+                ))}
+              </div>
             )}
           </Reveal>
         </div>

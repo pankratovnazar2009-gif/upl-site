@@ -539,6 +539,8 @@ export type MatchReport = {
   homeFormation: MatchFormationChip[];
   awayFormation: MatchFormationChip[];
   officials: MatchOfficial[];
+  /** Channels showing this fixture, straight off the same report page. */
+  broadcasters: Broadcaster[];
   previewUrl: string;
   reviewUrl: string;
   sourceUrl: string;
@@ -610,18 +612,14 @@ function parseFormation($: cheerio.CheerioAPI, fieldSelector: string): MatchForm
  * upl.ua's own image so a new broadcaster still shows up rather than
  * silently disappearing.
  */
-const BROADCASTER_LOGOS: Record<string, { name: string; logo: string }> = {
-  "l30.png": { name: "UPL.TV", logo: "/logos/tv/upl-tv.svg" },
-  "l4.png": { name: "2+2", logo: "/logos/tv/2plus2.png" },
+export type Broadcaster = { name: string; logo: string; url: string | null };
+
+const BROADCASTER_LOGOS: Record<string, Broadcaster> = {
+  "l30.png": { name: "UPL.TV", logo: "/logos/tv/upl-tv.svg", url: "https://tv.upl.ua/" },
+  "l4.png": { name: "2+2", logo: "/logos/tv/2plus2.png", url: "https://2plus2.ua/" },
 };
 
-export type Broadcaster = { name: string; logo: string };
-
-export async function getMatchBroadcasters(reportId: number): Promise<Broadcaster[]> {
-  const html = await fetchHtml(`/ua/report/view/${reportId}/report`);
-  if (!html) return [];
-
-  const $ = cheerio.load(html);
+function parseBroadcasters($: cheerio.CheerioAPI): Broadcaster[] {
   const found: Broadcaster[] = [];
   $(".tv-channel img").each((_, el) => {
     const src = $(el).attr("src") || "";
@@ -630,10 +628,16 @@ export async function getMatchBroadcasters(reportId: number): Promise<Broadcaste
     if (known) {
       if (!found.some((b) => b.name === known.name)) found.push(known);
     } else if (src) {
-      found.push({ name: file.replace(/\.[a-z]+$/i, ""), logo: `${BASE}${src}` });
+      found.push({ name: file.replace(/\.[a-z]+$/i, ""), logo: `${BASE}${src}`, url: null });
     }
   });
   return found;
+}
+
+export async function getMatchBroadcasters(reportId: number): Promise<Broadcaster[]> {
+  const html = await fetchHtml(`/ua/report/view/${reportId}/report`);
+  if (!html) return [];
+  return parseBroadcasters(cheerio.load(html));
 }
 
 /**
@@ -760,6 +764,7 @@ export async function getMatchReport(
     homeFormation: parseFormation($, "#field"),
     awayFormation: parseFormation($, "#field2"),
     officials,
+    broadcasters: parseBroadcasters($),
     previewUrl: `${BASE}/${langPath}/report/view/${id}/preview`,
     reviewUrl: `${BASE}/${langPath}/report/view/${id}/review`,
     sourceUrl: `${BASE}/${langPath}/report/view/${id}/report`,
