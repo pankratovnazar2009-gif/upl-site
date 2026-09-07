@@ -5,19 +5,9 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
-import { reportIdFromUrl, type ScheduleMatch, type ScheduleRound } from "@/lib/upl-source";
+import { groupMatchesByDate, reportIdFromUrl, type ScheduleMatch, type ScheduleRound } from "@/lib/upl-source";
 import { useLiveMinute } from "@/lib/use-live-minute";
 import { LiveBadge } from "@/components/live-badge";
-
-function groupByDate(round: ScheduleRound) {
-  const groups = new Map<string, ScheduleRound["matches"]>();
-  for (const m of round.matches) {
-    const list = groups.get(m.date) ?? [];
-    list.push(m);
-    groups.set(m.date, list);
-  }
-  return Array.from(groups.entries());
-}
 
 function TeamCell({ slug, name, align }: { slug: string | null; name: string; align: "left" | "right" }) {
   const locale = useLocale();
@@ -87,7 +77,7 @@ export function ScheduleBrowser({
     Math.min(Math.max(initialRoundIndex, 0), rounds.length - 1),
   );
   const round = rounds[index];
-  const groups = useMemo(() => (round ? groupByDate(round) : []), [round]);
+  const groups = useMemo(() => (round ? groupMatchesByDate(round.matches) : []), [round]);
 
   if (!round) return null;
 

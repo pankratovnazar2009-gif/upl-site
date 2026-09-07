@@ -188,6 +188,17 @@ function parseUplDate(date: string): number {
   return Date.UTC(Number(y), Number(mo) - 1, Number(d));
 }
 
+/** Groups a flat match list by its "DD.MM.YYYY" date string, preserving first-seen order — shared by the fixtures browser and the homepage matches sidebar. */
+export function groupMatchesByDate(matches: ScheduleMatch[]): Array<[string, ScheduleMatch[]]> {
+  const groups = new Map<string, ScheduleMatch[]>();
+  for (const m of matches) {
+    const list = groups.get(m.date) ?? [];
+    list.push(m);
+    groups.set(m.date, list);
+  }
+  return Array.from(groups.entries());
+}
+
 /**
  * The round to show by default. Rounds keep their original number even when
  * a single match inside them is postponed to a much later date (this

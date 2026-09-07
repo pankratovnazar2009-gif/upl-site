@@ -1,15 +1,15 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, findTopMatch, findNextMatch, computeSplitStandings } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, computeSplitStandings } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
 import { StandingsTable } from "@/components/standings-table";
 import { StandingsSplitTabs } from "@/components/standings-split-tabs";
 import { ClubsTicker } from "@/components/clubs-ticker";
-import { NewsBox } from "@/components/news-box";
-import { TopMatchCard } from "@/components/top-match-card";
+import { FeaturedNews } from "@/components/featured-news";
+import { MatchesSidebar } from "@/components/matches-sidebar";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 
 export const revalidate = 300;
@@ -21,20 +21,11 @@ export default async function HomePage() {
   const [standings, schedule, featuredNews] = await Promise.all([
     getStandings(),
     getSchedule(),
-    getFeaturedNews(5),
+    getFeaturedNews(6),
   ]);
   const standingsData = standings ?? standingsFallback;
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
-  const topMatch = currentRound ? findTopMatch(currentRound, standingsData.rows) : null;
-  const nextMatchResult = findNextMatch(scheduleData.rounds);
-  const isSameFixture =
-    topMatch &&
-    nextMatchResult &&
-    nextMatchResult.match.homeSlug === topMatch.homeSlug &&
-    nextMatchResult.match.awaySlug === topMatch.awaySlug &&
-    nextMatchResult.match.date === topMatch.date;
-  const nextMatch = isSameFixture ? null : (nextMatchResult?.match ?? null);
 
   return (
     <div>
@@ -42,17 +33,10 @@ export default async function HomePage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-6 sm:pt-8 sm:pb-8">
-        {(featuredNews?.length || topMatch) && (
-          <Reveal className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
-            {featuredNews && featuredNews.length > 0 && <NewsBox items={featuredNews} />}
-            {topMatch && currentRound && (
-              <TopMatchCard
-                round={currentRound.round}
-                match={topMatch}
-                nextMatch={nextMatch}
-                nextRound={nextMatchResult?.round}
-              />
-            )}
+        {(featuredNews?.length || currentRound) && (
+          <Reveal className="grid grid-cols-1 gap-3 xl:grid-cols-[2.3fr_1fr] xl:items-start">
+            {featuredNews && featuredNews.length > 0 && <FeaturedNews items={featuredNews} />}
+            {currentRound && <MatchesSidebar round={currentRound} locale={locale} />}
           </Reveal>
         )}
       </section>
