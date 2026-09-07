@@ -1,12 +1,11 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, computeSplitStandings } from "@/lib/upl-source";
+import { getStandings, getSchedule, getFeaturedNews, findCurrentRound } from "@/lib/upl-source";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
 import { StandingsTable } from "@/components/standings-table";
-import { StandingsSplitTabs } from "@/components/standings-split-tabs";
 import { ClubsTicker } from "@/components/clubs-ticker";
 import { FeaturedNews } from "@/components/featured-news";
 import { MatchesSidebar } from "@/components/matches-sidebar";
@@ -16,6 +15,7 @@ export const revalidate = 300;
 
 export default async function HomePage() {
   const t = await getTranslations("home");
+  const ts = await getTranslations("standings");
   const locale = (await getLocale()) as "uk" | "en";
 
   const [standings, schedule, featuredNews] = await Promise.all([
@@ -54,23 +54,15 @@ export default async function HomePage() {
               </p>
             </div>
             <Link
-              href="/tournament"
+              href="/tournament?tab=schedule"
               className="text-[13px] font-medium uppercase tracking-[0.08em] text-accent underline decoration-1 underline-offset-4"
             >
-              {t("standingsCta")} →
+              {ts("tabSchedule")} →
             </Link>
           </Reveal>
 
           <Reveal delay={0.1} className="mt-8">
-            <StandingsSplitTabs
-              overallSlot={<StandingsTable rows={standingsData.rows} limit={6} />}
-              homeSlot={
-                <StandingsTable rows={computeSplitStandings(scheduleData.rounds, "home")} limit={6} zones={false} />
-              }
-              awaySlot={
-                <StandingsTable rows={computeSplitStandings(scheduleData.rounds, "away")} limit={6} zones={false} />
-              }
-            />
+            <StandingsTable rows={standingsData.rows} showLegend />
           </Reveal>
         </div>
       </section>
