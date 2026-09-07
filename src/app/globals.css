@@ -26,8 +26,8 @@
   --state-loss: #e6004c;
   --state-live: #e6004c;
 
-  --font-display: var(--font-unbounded), system-ui, sans-serif;
-  --font-body: var(--font-onest), system-ui, sans-serif;
+  --font-display: var(--font-geologica), system-ui, sans-serif;
+  --font-body: var(--font-geologica), system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-inout: cubic-bezier(0.83, 0, 0.17, 1);

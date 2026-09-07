@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Unbounded, Onest } from "next/font/google";
+import { Geologica } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,17 +9,14 @@ import { SiteFooter } from "@/components/site-footer";
 import { Preloader } from "@/components/preloader";
 import "../globals.css";
 
-const unbounded = Unbounded({
-  variable: "--font-unbounded",
+// One variable font for the whole site (headings and body alike) —
+// Geologica ships weights 100-900 in a single file and covers Cyrillic,
+// so both semantic roles (--font-display / --font-body, see globals.css)
+// point at this same instance.
+const geologica = Geologica({
+  variable: "--font-geologica",
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
-  weight: ["600", "700", "800", "900"],
-  display: "swap",
-});
-
-const onest = Onest({
-  variable: "--font-onest",
-  subsets: ["latin", "cyrillic", "cyrillic-ext"],
-  weight: ["400", "500", "600", "700"],
+  weight: "variable",
   display: "swap",
 });
 
@@ -51,7 +48,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${unbounded.variable} ${onest.variable} h-full antialiased`}
+      className={`${geologica.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <NextIntlClientProvider>
