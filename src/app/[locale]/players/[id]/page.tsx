@@ -8,10 +8,34 @@ import { Reveal } from "@/components/motion/reveal";
 
 export const revalidate = 3600;
 
-function StatTile({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+/** A booking drawn the way it looks on the pitch, so the tile needs no long caption. */
+function CardIcon({ colour }: { colour: "yellow" | "red" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block h-[13px] w-[9px] shrink-0 rounded-[1.5px]"
+      style={{ backgroundColor: colour === "yellow" ? "#f2c313" : "#dc2626" }}
+    />
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  hint,
+  card,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  card?: "yellow" | "red";
+}) {
   return (
     <div className="border border-fg-faint px-4 py-3.5">
-      <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{label}</p>
+      <p className="flex items-center gap-1.5 whitespace-nowrap text-label uppercase tracking-[0.06em] text-fg-muted">
+        {card && <CardIcon colour={card} />}
+        {label}
+      </p>
       <p className="font-display mt-1.5 text-[26px] font-bold leading-none tabular-nums">
         {value}
         {hint && <span className="ml-1.5 text-[12px] font-medium text-fg-muted">{hint}</span>}
@@ -119,8 +143,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
             ) : (
               <StatTile label={t("goals")} value={stats.goals} />
             )}
-            <StatTile label={t("yellows")} value={stats.yellows} />
-            <StatTile label={t("reds")} value={stats.reds} />
+            <StatTile label={t("yellows")} value={stats.yellows} card="yellow" />
+            <StatTile label={t("reds")} value={stats.reds} card="red" />
           </div>
         ) : (
           <p className="mt-4 text-[14.5px] text-fg-muted">{t("noStats")}</p>
