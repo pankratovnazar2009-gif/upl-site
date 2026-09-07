@@ -39,7 +39,7 @@ export default async function NewsPage() {
                       alt=""
                       width={400}
                       height={250}
-                      className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-[1.03]"
+                      className="h-full w-full object-cover saturate-[0.35] brightness-[0.82] transition-all duration-500 group-hover:scale-[1.03] group-hover:saturate-100 group-hover:brightness-100"
                     />
                   )}
                 </div>
