@@ -7,7 +7,7 @@ import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
 import { StandingsTable } from "@/components/standings-table";
 import { StandingsSplitTabs } from "@/components/standings-split-tabs";
-import { MatchTicker } from "@/components/match-ticker";
+import { ClubsTicker } from "@/components/clubs-ticker";
 import { NewsBox } from "@/components/news-box";
 import { TopMatchCard } from "@/components/top-match-card";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
@@ -38,7 +38,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {currentRound && <MatchTicker round={currentRound} />}
+      <ClubsTicker clubs={clubs} />
 
       {/* Hero */}
       <section className="mx-auto max-w-[1440px] px-(--gutter) pt-6 pb-6 sm:pt-8 sm:pb-8">
