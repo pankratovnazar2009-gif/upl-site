@@ -90,7 +90,7 @@ export function Preloader() {
             transition={{ duration: 0.7, ease: EASE_INOUT }}
           >
             <Image
-              src="/logos/upl-mark.png"
+              src="/logos/upl-mark.svg"
               alt=""
               width={96}
               height={96}

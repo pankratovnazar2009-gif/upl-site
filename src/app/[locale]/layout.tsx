@@ -32,7 +32,7 @@ export async function generateMetadata(props: {
   return {
     title: { default: t("homeTitle"), template: `%s — ${t("siteName")}` },
     description: t("homeDescription"),
-    icons: { icon: "/logos/upl-mark.png" },
+    icons: { icon: "/logos/upl-favicon.svg" },
   };
 }
 

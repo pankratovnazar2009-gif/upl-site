@@ -12,11 +12,11 @@ export async function SiteFooter() {
         <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <Image
-              src="/logos/upl-mark.png"
+              src="/logos/upl-mark.svg"
               alt="УПЛ"
               width={40}
               height={40}
-              className="h-9 w-9 object-contain opacity-90 brightness-0 invert"
+              className="h-9 w-9 object-contain opacity-90"
             />
             <p className="font-display text-[15px] font-bold uppercase leading-none tracking-[0.04em] text-fg-muted">
               {t("org")}

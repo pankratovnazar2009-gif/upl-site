@@ -24,11 +24,11 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-(--gutter)">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logos/upl-mark.png"
+            src="/logos/upl-mark.svg"
             alt=""
             width={30}
             height={30}
-            className="h-7 w-7 shrink-0 object-contain brightness-0 invert"
+            className="h-7 w-7 shrink-0 object-contain"
             priority
           />
           <span className="hidden font-display text-[13px] font-bold leading-[1.15] lg:block">
