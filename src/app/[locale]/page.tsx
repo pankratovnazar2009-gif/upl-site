@@ -15,7 +15,6 @@ export const revalidate = 300;
 
 export default async function HomePage() {
   const t = await getTranslations("home");
-  const ts = await getTranslations("standings");
   const locale = (await getLocale()) as "uk" | "en";
 
   const [standings, schedule, featuredNews] = await Promise.all([
@@ -54,10 +53,10 @@ export default async function HomePage() {
               </p>
             </div>
             <Link
-              href="/tournament?tab=schedule"
+              href="/tournament"
               className="text-[13px] font-medium uppercase tracking-[0.08em] text-accent underline decoration-1 underline-offset-4"
             >
-              {ts("tabSchedule")} →
+              {t("tableCta")} →
             </Link>
           </Reveal>
 

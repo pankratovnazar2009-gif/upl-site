@@ -581,6 +581,54 @@ function parseFormation($: cheerio.CheerioAPI, fieldSelector: string): MatchForm
  * one) so every section label and team name comes back already translated —
  * we only supply our own chrome text around it.
  */
+/**
+ * Which TV channels carry a given fixture. upl.ua doesn't put this on the
+ * calendar page — only on each match's own report page — so this fetches
+ * those pages (cached like everything else) and maps the channel artwork
+ * it finds there onto our own local logos. Unknown channels fall back to
+ * upl.ua's own image so a new broadcaster still shows up rather than
+ * silently disappearing.
+ */
+const BROADCASTER_LOGOS: Record<string, { name: string; logo: string }> = {
+  "l30.png": { name: "UPL.TV", logo: "/logos/tv/upl-tv.svg" },
+  "l4.png": { name: "2+2", logo: "/logos/tv/2plus2.png" },
+};
+
+export type Broadcaster = { name: string; logo: string };
+
+export async function getMatchBroadcasters(reportId: number): Promise<Broadcaster[]> {
+  const html = await fetchHtml(`/ua/report/view/${reportId}/report`);
+  if (!html) return [];
+
+  const $ = cheerio.load(html);
+  const found: Broadcaster[] = [];
+  $(".tv-channel img").each((_, el) => {
+    const src = $(el).attr("src") || "";
+    const file = src.split("/").pop() || "";
+    const known = BROADCASTER_LOGOS[file];
+    if (known) {
+      if (!found.some((b) => b.name === known.name)) found.push(known);
+    } else if (src) {
+      found.push({ name: file.replace(/\.[a-z]+$/i, ""), logo: `${BASE}${src}` });
+    }
+  });
+  return found;
+}
+
+/** Broadcasters for every fixture in a round, keyed by report id. */
+export async function getRoundBroadcasters(
+  round: ScheduleRound,
+): Promise<Record<number, Broadcaster[]>> {
+  const ids = round.matches
+    .map((m) => reportIdFromUrl(m.reportUrl))
+    .filter((id): id is number => id !== null);
+
+  const entries = await Promise.all(
+    ids.map(async (id) => [id, await getMatchBroadcasters(id)] as const),
+  );
+  return Object.fromEntries(entries.filter(([, list]) => list.length > 0));
+}
+
 export async function getMatchReport(
   id: number,
   locale: "uk" | "en" = "uk",

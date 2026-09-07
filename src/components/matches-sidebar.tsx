@@ -4,8 +4,10 @@ import { Link } from "@/i18n/navigation";
 import { getClubBySlug } from "@/data/clubs";
 import {
   getLiveMinute,
+  getRoundBroadcasters,
   groupMatchesByDate,
   reportIdFromUrl,
+  type Broadcaster,
   type ScheduleMatch,
   type ScheduleRound,
 } from "@/lib/upl-source";
@@ -34,7 +36,17 @@ function dayLabel(date: string, locale: "uk" | "en", labels: { today: string; to
   return `${weekdays[target.getDay()]} ${d} ${months[Number(mo) - 1]}`;
 }
 
-function MatchRow({ match, locale, liveLabel }: { match: ScheduleMatch; locale: "uk" | "en"; liveLabel: string }) {
+function MatchRow({
+  match,
+  locale,
+  liveLabel,
+  broadcasters,
+}: {
+  match: ScheduleMatch;
+  locale: "uk" | "en";
+  liveLabel: string;
+  broadcasters: Broadcaster[];
+}) {
   const home = match.homeSlug ? getClubBySlug(match.homeSlug) : undefined;
   const away = match.awaySlug ? getClubBySlug(match.awaySlug) : undefined;
   const reportId = reportIdFromUrl(match.reportUrl);
@@ -85,6 +97,22 @@ function MatchRow({ match, locale, liveLabel }: { match: ScheduleMatch; locale: 
           {away ? away.name[locale] : match.awayName}
         </span>
       </div>
+
+      {broadcasters.length > 0 && (
+        <div className="col-span-3 -mt-0.5 flex items-center justify-center gap-3">
+          {broadcasters.map((b) => (
+            <Image
+              key={b.name}
+              src={b.logo}
+              alt={b.name}
+              title={b.name}
+              width={54}
+              height={16}
+              className="h-4 w-auto object-contain opacity-70"
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -101,6 +129,7 @@ export async function MatchesSidebar({ round, locale }: { round: ScheduleRound; 
   const t = await getTranslations("home");
   const ts = await getTranslations("standings");
   const groups = groupMatchesByDate(round.matches);
+  const broadcasters = await getRoundBroadcasters(round);
   const labels = { today: t("today"), tomorrow: t("tomorrow"), yesterday: t("yesterday") };
 
   return (
@@ -123,7 +152,13 @@ export async function MatchesSidebar({ round, locale }: { round: ScheduleRound; 
             </p>
             <div className="divide-y divide-fg-faint/60">
               {matches.map((m, i) => (
-                <MatchRow key={i} match={m} locale={locale} liveLabel={ts("live")} />
+                <MatchRow
+                  key={i}
+                  match={m}
+                  locale={locale}
+                  liveLabel={ts("live")}
+                  broadcasters={broadcasters[reportIdFromUrl(m.reportUrl) ?? -1] ?? []}
+                />
               ))}
             </div>
           </div>
