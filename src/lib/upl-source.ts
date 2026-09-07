@@ -24,15 +24,22 @@ const FETCH_HEADERS = {
 const uplIdToSlug = new Map(clubs.map((c) => [c.uplId, c.slug]));
 const nameToSlug = new Map(clubs.map((c) => [c.name.uk, c.slug]));
 
-async function fetchHtml(path: string): Promise<string | null> {
+async function fetchHtml(path: string, attempt = 0): Promise<string | null> {
   try {
     const res = await fetch(`${BASE}${path}`, {
       headers: FETCH_HEADERS,
       next: { revalidate: REVALIDATE_SECONDS },
     });
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(String(res.status));
     return await res.text();
   } catch {
+    // A build renders all 16 club pages at once and upl.ua occasionally drops
+    // one of those bursts — a single retry is enough to keep a club page from
+    // being cached for an hour with an empty squad.
+    if (attempt < 2) {
+      await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+      return fetchHtml(path, attempt + 1);
+    }
     return null;
   }
 }

@@ -1,65 +1,94 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "motion/react";
-import type { ReactNode } from "react";
-
-const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type RevealProps = {
   children: ReactNode;
   delay?: number;
   className?: string;
+  id?: string;
   /** Stagger direct children instead of animating this element as one block. */
   stagger?: boolean;
   as?: "div" | "section" | "ul" | "li";
 };
 
-const item: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
-};
+/**
+ * Reveals a block once it reaches the viewport.
+ *
+ * The transition itself is plain CSS (see `.reveal` in globals.css) rather
+ * than a JS-driven animation: a compositor transition still finishes when the
+ * tab is throttled, so a section can never be left stuck at opacity 0. The
+ * hook measures on mount as well as observing, because a tall block — a
+ * 40-player squad grid — would otherwise stay blank until you scrolled deep
+ * into it.
+ */
+function useRevealed<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [revealed, setRevealed] = useState(false);
 
-/** Fades + rises an element in once, when it crosses ~20% into the viewport. */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) {
+      setRevealed(true);
+      return;
+    }
+
+    // Pre-arm anything within 240px of the fold so it is never caught blank.
+    const check = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight + 240 && rect.bottom > -240) {
+        setRevealed(true);
+        return true;
+      }
+      return false;
+    };
+
+    if (check()) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setRevealed(true);
+          cleanup();
+        }
+      },
+      { rootMargin: "0px 0px 240px 0px", threshold: 0 },
+    );
+    // Cheap backstop for anything the observer misses (in-page anchor jumps,
+    // layout shifts after images load).
+    const timer = window.setInterval(() => {
+      if (check()) cleanup();
+    }, 200);
+    const cleanup = () => {
+      observer.disconnect();
+      window.clearInterval(timer);
+    };
+
+    observer.observe(el);
+    return cleanup;
+  }, []);
+
+  return { ref, revealed };
+}
+
 export function Reveal({
   children,
   delay = 0,
   className,
+  id,
   stagger = false,
-  as = "div",
+  as: Component = "div",
 }: RevealProps) {
-  const reduced = useReducedMotion();
-  const Component = motion[as];
-
-  if (reduced) {
-    const Static = as;
-    return <Static className={className}>{children}</Static>;
-  }
-
-  if (stagger) {
-    const container: Variants = {
-      hidden: {},
-      visible: { transition: { staggerChildren: 0.08, delayChildren: delay } },
-    };
-    return (
-      <Component
-        className={className}
-        variants={container}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        {children}
-      </Component>
-    );
-  }
+  const { ref, revealed } = useRevealed<HTMLElement>();
 
   return (
     <Component
-      className={className}
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: EASE_OUT, delay }}
+      ref={ref as React.RefObject<never>}
+      id={id}
+      className={`reveal${stagger ? " reveal-group" : ""}${revealed ? " in" : ""}${
+        className ? ` ${className}` : ""
+      }`}
+      style={delay ? { transitionDelay: `${delay}s` } : undefined}
     >
       {children}
     </Component>
@@ -73,11 +102,5 @@ export function RevealItem({
   children: ReactNode;
   className?: string;
 }) {
-  const reduced = useReducedMotion();
-  if (reduced) return <div className={className}>{children}</div>;
-  return (
-    <motion.div className={className} variants={item}>
-      {children}
-    </motion.div>
-  );
+  return <div className={`reveal-item${className ? ` ${className}` : ""}`}>{children}</div>;
 }

@@ -67,6 +67,7 @@
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -93,6 +94,45 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Scroll reveal — CSS so a throttled tab can never leave a block invisible */
+.reveal,
+.reveal-group .reveal-item {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+}
+.reveal.in,
+.reveal-group.in .reveal-item {
+  opacity: 1;
+  transform: none;
+}
+.reveal-group.in .reveal-item:nth-child(2) {
+  transition-delay: 0.08s;
+}
+.reveal-group.in .reveal-item:nth-child(3) {
+  transition-delay: 0.16s;
+}
+.reveal-group.in .reveal-item:nth-child(4) {
+  transition-delay: 0.24s;
+}
+.reveal-group.in .reveal-item:nth-child(5) {
+  transition-delay: 0.32s;
+}
+.reveal-group.in .reveal-item:nth-child(n + 6) {
+  transition-delay: 0.4s;
+}
+
+/* Without scripting nothing ever adds `.in` — show everything instead. */
+@media (scripting: none) {
+  .reveal,
+  .reveal-group .reveal-item {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Masked line reveal — headline primitive from the design system */
 .line-mask {
   display: block;
@@ -117,5 +157,10 @@ body {
   }
   .line-mask > * {
     transform: translateY(0) !important;
+  }
+  .reveal,
+  .reveal-group .reveal-item {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

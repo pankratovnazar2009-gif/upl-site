@@ -97,7 +97,19 @@
     "kitHome": "Home",
     "kitAway": "Away",
     "kitKeeper": "Goalkeeper",
-    "kitsSourceNote": "The strips the team wore in its most recent matches"
+    "kitsSourceNote": "The strips the team wore in its most recent matches",
+    "navAbout": "Club",
+    "navSquad": "Squad",
+    "navKits": "Kits",
+    "navResults": "Results",
+    "navHonours": "Honours",
+    "navLegends": "Legends",
+    "resultWin": "Win",
+    "resultDraw": "Draw",
+    "resultLoss": "Loss",
+    "homeShort": "Home",
+    "awayShort": "Away",
+    "squadUnavailable": "Squad temporarily unavailable — the official UPL site did not respond. Try again in a few minutes."
   },
   "news": {
     "title": "News",

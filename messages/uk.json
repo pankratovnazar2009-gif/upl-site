@@ -97,7 +97,19 @@
     "kitHome": "Домашня",
     "kitAway": "Виїзна",
     "kitKeeper": "Воротарська",
-    "kitsSourceNote": "Комплекти, в яких команда виходила на останні матчі"
+    "kitsSourceNote": "Комплекти, в яких команда виходила на останні матчі",
+    "navAbout": "Клуб",
+    "navSquad": "Склад",
+    "navKits": "Форма",
+    "navResults": "Результати",
+    "navHonours": "Титули",
+    "navLegends": "Легенди",
+    "resultWin": "Перемога",
+    "resultDraw": "Нічия",
+    "resultLoss": "Поразка",
+    "homeShort": "Дома",
+    "awayShort": "Виїзд",
+    "squadUnavailable": "Склад тимчасово недоступний — офіційний сайт УПЛ не відповів. Оновіть сторінку за кілька хвилин."
   },
   "news": {
     "title": "Новини",
