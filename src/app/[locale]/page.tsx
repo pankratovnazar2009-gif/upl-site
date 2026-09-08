@@ -57,16 +57,16 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y-dense)">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold">
+              <h2 className="font-display text-section">
                 {t("standingsTitle")}
               </h2>
-              <p className="mt-2 text-[14px] text-fg-muted">
+              <p className="mt-3 text-meta text-fg-muted">
                 {t("standingsSubtitle", { round: (currentRound?.round ?? 1) - 1 || 1 })}
               </p>
             </div>
             <Link
               href="/tournament"
-              className="text-[13px] font-medium uppercase tracking-[0.08em] text-accent underline decoration-1 underline-offset-4"
+              className="text-meta font-semibold uppercase tracking-[0.08em] text-accent underline decoration-1 underline-offset-4"
             >
               {t("tableCta")} →
             </Link>
@@ -93,14 +93,14 @@ export default async function HomePage() {
       <section className="border-t border-fg-faint">
         <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y)">
           <Reveal>
-            <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold">
+            <h2 className="font-display text-section">
               {t("partnersTitle")}
             </h2>
           </Reveal>
           <Reveal
             stagger
             as="ul"
-            className="mt-10 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-3"
+            className="mt-7 grid grid-cols-1 gap-x-8 gap-y-8 border-t border-fg-faint pt-8 sm:grid-cols-3"
           >
             {partners.map((partner) => (
               <RevealItem key={partner.name}>
@@ -111,7 +111,7 @@ export default async function HomePage() {
                       alt={partner.name}
                       width={200}
                       height={100}
-                      className="h-full w-full object-contain object-left opacity-90"
+                      className={`h-full w-full object-contain object-left ${partner.invertOnDark ? "brightness-0 invert" : ""}`}
                     />
                   ) : (
                     <span className="font-display text-[22px] font-black italic tracking-tight text-fg">
@@ -122,7 +122,7 @@ export default async function HomePage() {
                 <p className="mt-4 text-label uppercase tracking-[0.08em] text-fg-muted">
                   {partner.role[locale]}
                 </p>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-fg-muted">
+                <p className="mt-2 text-body text-fg-muted">
                   {partner.note[locale]}
                 </p>
               </RevealItem>

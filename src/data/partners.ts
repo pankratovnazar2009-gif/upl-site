@@ -2,6 +2,8 @@ export type Partner = {
   name: string;
   /** Image path — omit to render `name` as a styled wordmark instead. */
   logo?: string;
+  /** Logo artwork is solid black — invert it so it reads on the navy page. */
+  invertOnDark?: boolean;
   role: { uk: string; en: string };
   note: { uk: string; en: string };
 };
@@ -25,6 +27,7 @@ export const partners: Partner[] = [
   {
     name: "PUMA",
     logo: "/logos/partners/puma.png",
+    invertOnDark: true,
     role: { uk: "Технічний партнер", en: "Technical partner" },
     note: {
       uk: "Офіційний постачальник єдиного м'яча чемпіонату — PUMA Orbita Ball.",

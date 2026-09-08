@@ -32,7 +32,7 @@ export default async function NewsPage() {
                 rel="noopener noreferrer"
                 className="group flex h-full flex-col"
               >
-                <div className="aspect-[16/10] overflow-hidden bg-bg-raised">
+                <div className="img-skeleton aspect-[16/10] overflow-hidden">
                   {item.image && (
                     <Image
                       src={item.image}

@@ -25,6 +25,17 @@ type RevealProps = {
 function useRevealed<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [revealed, setRevealed] = useState(false);
+  const [settled, setSettled] = useState(false);
+
+  // Once the reveal has been triggered, force the end state shortly after the
+  // transition should have finished. A transition that never advances (a
+  // throttled or unfocused tab stops compositing) would otherwise leave the
+  // block stranded at whatever opacity it froze at.
+  useEffect(() => {
+    if (!revealed) return;
+    const timer = window.setTimeout(() => setSettled(true), 700);
+    return () => window.clearTimeout(timer);
+  }, [revealed]);
 
   useEffect(() => {
     const el = ref.current;
@@ -59,16 +70,23 @@ function useRevealed<T extends HTMLElement>() {
     const timer = window.setInterval(() => {
       if (check()) cleanup();
     }, 200);
+    // Last-resort safety net: whatever the observer, the interval or a
+    // throttled tab does, a block is never left hidden for longer than this.
+    const failsafe = window.setTimeout(() => {
+      setRevealed(true);
+      cleanup();
+    }, 4000);
     const cleanup = () => {
       observer.disconnect();
       window.clearInterval(timer);
+      window.clearTimeout(failsafe);
     };
 
     observer.observe(el);
     return cleanup;
   }, []);
 
-  return { ref, revealed };
+  return { ref, revealed, settled };
 }
 
 export function Reveal({
@@ -79,13 +97,13 @@ export function Reveal({
   stagger = false,
   as: Component = "div",
 }: RevealProps) {
-  const { ref, revealed } = useRevealed<HTMLElement>();
+  const { ref, revealed, settled } = useRevealed<HTMLElement>();
 
   return (
     <Component
       ref={ref as React.RefObject<never>}
       id={id}
-      className={`reveal${stagger ? " reveal-group" : ""}${revealed ? " in" : ""}${
+      className={`reveal${stagger ? " reveal-group" : ""}${revealed ? " in" : ""}${settled ? " settled" : ""}${
         className ? ` ${className}` : ""
       }`}
       style={delay ? { transitionDelay: `${delay}s` } : undefined}

@@ -24,7 +24,7 @@ export async function FeaturedNews({ items }: { items: NewsItem[] }) {
         rel="noopener noreferrer"
         className="group relative block overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-[16/9] lg:aspect-[16/8]"
       >
-        <div className="relative aspect-[16/10] w-full sm:absolute sm:inset-0 sm:aspect-auto sm:h-full">
+        <div className="img-skeleton relative aspect-[16/10] w-full sm:absolute sm:inset-0 sm:aspect-auto sm:h-full">
           <Image
             src={lead.image!}
             alt=""
@@ -40,7 +40,7 @@ export async function FeaturedNews({ items }: { items: NewsItem[] }) {
           <p className="text-label uppercase tracking-[0.08em] text-fg-muted sm:text-white/70">
             {t("latestNews")} · {lead.date}
           </p>
-          <p className="mt-2 max-w-3xl font-display text-[19px] font-bold leading-snug transition-colors group-hover:text-accent sm:mt-2.5 sm:text-[28px] sm:text-white sm:group-hover:text-accent">
+          <p className="mt-2 max-w-3xl font-display text-lead transition-colors group-hover:text-accent sm:mt-2.5 sm:text-white sm:group-hover:text-accent">
             {lead.title}
           </p>
           {lead.excerpt && (
@@ -63,7 +63,7 @@ export async function FeaturedNews({ items }: { items: NewsItem[] }) {
             rel="noopener noreferrer"
             className="group flex w-[62%] shrink-0 snap-start flex-col border border-fg-faint transition-colors duration-200 hover:border-accent hover:bg-bg-raised/60 sm:w-auto sm:shrink"
           >
-            <span className="relative block aspect-[16/10] w-full overflow-hidden bg-brand-navy">
+            <span className="img-skeleton relative block aspect-[16/10] w-full overflow-hidden">
               <Image
                 src={item.image!}
                 alt=""
@@ -73,10 +73,10 @@ export async function FeaturedNews({ items }: { items: NewsItem[] }) {
               />
             </span>
             <span className="flex flex-1 flex-col p-2.5">
-              <span className="line-clamp-3 text-[12.5px] font-semibold leading-snug transition-colors group-hover:text-accent">
+              <span className="line-clamp-3 text-[12.5px] font-medium leading-snug transition-colors group-hover:text-accent">
                 {item.title}
               </span>
-              <span className="mt-auto pt-2 text-[10.5px] text-fg-muted">{item.date}</span>
+              <span className="mt-auto pt-2 text-label font-normal text-fg-muted">{item.date}</span>
             </span>
           </a>
         ))}

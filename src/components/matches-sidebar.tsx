@@ -79,7 +79,7 @@ function MatchRow({
         ) : liveMinute != null ? (
           <LiveBadge minute={liveMinute} label={liveLabel} />
         ) : (
-          <span className="text-[12.5px] font-medium tabular-nums text-fg-muted">
+          <span className="text-meta font-medium tabular-nums text-fg-muted">
             {match.time ?? "—"}
           </span>
         )}

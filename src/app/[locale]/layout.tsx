@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Preloader } from "@/components/preloader";
 import "../globals.css";
 
 // One variable font for the whole site (headings and body alike) —
@@ -50,9 +49,21 @@ export default async function LocaleLayout({
       lang={locale}
       className={`${geologica.variable} h-full antialiased`}
     >
+      <head>
+        {/*
+          Marks the document as JS-capable before first paint. Scroll reveals
+          hide their content in CSS and that hidden state is scoped to this
+          flag, so a slow, blocked or broken bundle leaves the page fully
+          visible instead of stuck at opacity 0.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <NextIntlClientProvider>
-          <Preloader />
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />

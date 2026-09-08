@@ -95,10 +95,10 @@ export async function StandingsTable({
                         height={22}
                         className={`h-[22px] w-[22px] shrink-0 object-contain ${club.monochromeDark ? "brightness-0 invert" : ""}`}
                       />
-                      <span className="truncate text-[14px] font-medium">{displayName}</span>
+                      <span className="truncate text-[14px] font-semibold">{displayName}</span>
                     </Link>
                   ) : (
-                    <span className="truncate text-[14px] font-medium">{displayName}</span>
+                    <span className="truncate text-[14px] font-semibold">{displayName}</span>
                   )}
                 </td>
                 <td className="px-1.5 py-3 text-center text-[13px] text-fg-muted">{row.played}</td>

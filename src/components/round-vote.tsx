@@ -77,7 +77,7 @@ function NomineeRow({
         )}
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14px] font-semibold">{nominee.name}</span>
-          <span className="block truncate text-[11.5px] text-fg-muted">
+          <span className="block truncate text-meta text-fg-muted">
             {club ? club.name[locale] : nominee.clubName}
             {nominee.detail && ` · ${detailLabel}`}
           </span>
@@ -131,8 +131,8 @@ export function RoundVote({ awards }: { awards: RoundAwards }) {
   return (
     <div className="border border-fg-faint bg-bg-raised px-5 py-6 sm:px-7 sm:py-7">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-        <h2 className="font-display text-[19px] font-bold">{t("title")}</h2>
-        <p className="text-[12px] uppercase tracking-[0.08em] text-fg-muted">
+        <h2 className="font-display text-title">{t("title")}</h2>
+        <p className="text-label uppercase tracking-[0.08em] text-fg-muted">
           {t("roundLabel", { round: awards.round })}
         </p>
       </div>
@@ -174,7 +174,7 @@ export function RoundVote({ awards }: { awards: RoundAwards }) {
         ))}
       </div>
 
-      <p className="mt-4 text-[11.5px] leading-relaxed text-fg-muted">
+      <p className="mt-4 text-meta text-fg-muted">
         {current ? t("thanks") : t("hint")}
       </p>
     </div>
