@@ -71,20 +71,22 @@ function FilterSelect({
   value,
   onChange,
   label,
+  className,
   children,
 }: {
   value: string;
   onChange: (value: string) => void;
   label: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-none">
+    <label className={`flex min-w-0 flex-col gap-1.5 ${className ?? ""}`}>
       <span className="text-label uppercase tracking-[0.1em] text-fg-muted">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full cursor-pointer border border-fg-faint bg-bg-raised px-3 py-2 text-[13px] font-medium text-fg outline-none transition-colors hover:border-accent focus:border-accent sm:w-[168px]"
+        className="w-full cursor-pointer border border-fg-faint bg-bg-raised px-3 py-2.5 text-[13px] font-medium text-fg outline-none transition-colors hover:border-accent focus:border-accent sm:w-[168px] sm:py-2"
       >
         {children}
       </select>
@@ -178,8 +180,10 @@ export function ScheduleBrowser({
   if (!round) return null;
 
   const filterBar = (
-    <div className="mb-8 flex flex-wrap items-end gap-3 sm:gap-4">
-      <FilterSelect value={club} onChange={setClub} label={tf("club")}>
+    // Three selects side by side leave no room for a club name on a phone, so
+    // the club filter takes the full width and the other two share a row.
+    <div className="mb-8 grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap sm:gap-4">
+      <FilterSelect value={club} onChange={setClub} label={tf("club")} className="col-span-2 sm:col-span-1">
         <option value="all">{tf("allClubs")}</option>
         {clubsInSchedule.map((option) => (
           <option key={option.slug} value={option.slug}>
@@ -211,7 +215,7 @@ export function ScheduleBrowser({
             setStatus("all");
             setMonth("all");
           }}
-          className="border border-fg-faint px-3 py-2 text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-muted transition-colors hover:border-accent hover:text-accent"
+          className="col-span-2 border border-fg-faint px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-muted transition-colors hover:border-accent hover:text-accent sm:col-span-1 sm:py-2"
         >
           {tf("reset")}
         </button>

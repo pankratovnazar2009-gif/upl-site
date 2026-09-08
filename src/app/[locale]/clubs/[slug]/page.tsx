@@ -15,6 +15,7 @@ import {
 import { scheduleFallback } from "@/data/fallback";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { ClubSectionNav, type ClubSection } from "@/components/club-section-nav";
+import { ClubSquad } from "@/components/club-squad";
 import { LegendCard } from "@/components/legend-card";
 
 function KitStrip({ kit, label, note }: { kit: KitSet; label: string; note?: string }) {
@@ -270,46 +271,7 @@ export default async function ClubPage({
             </h2>
             <p className="text-[12px] text-fg-muted">{t("squadSourceNote")}</p>
           </div>
-          <div className="mt-6 flex flex-col gap-8">
-            {squadGroups.map((group) => (
-              <div key={group.label}>
-                <p className="flex items-baseline gap-2 text-label uppercase tracking-[0.1em] text-fg-muted">
-                  <span className="h-1.5 w-1.5 self-center rounded-full bg-accent" />
-                  {group.label}
-                  <span className="tabular-nums">{group.players.length}</span>
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
-                  {group.players.map((player) => (
-                    <Link key={player.id} href={`/players/${player.id}`} className="group block">
-                      <div className="relative aspect-[3/4] w-full overflow-hidden bg-bg-raised">
-                        {player.photo ? (
-                          <Image
-                            src={player.photo}
-                            alt=""
-                            fill
-                            sizes="(min-width: 1024px) 200px, 45vw"
-                            className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center font-display text-[28px] font-bold text-fg-faint">
-                            {player.number ?? "?"}
-                          </span>
-                        )}
-                        {player.number != null && (
-                          <span className="absolute left-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full border border-bg bg-accent px-1 font-display text-[11px] font-bold text-accent-fg">
-                            {player.number}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-2.5 truncate text-[13px] font-semibold leading-tight transition-colors group-hover:text-accent">
-                        {player.name}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ClubSquad groups={squadGroups} />
         </Reveal>
       )}
 
@@ -319,7 +281,7 @@ export default async function ClubPage({
             <h2 className="font-display text-[20px] font-bold">{t("kitsTitle")}</h2>
             <p className="text-[12px] text-fg-muted">{t("kitsSourceNote")}</p>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-x-8 lg:grid-cols-4">
             {kits.outfield.map((kit, i) => (
               <KitStrip
                 key={i}

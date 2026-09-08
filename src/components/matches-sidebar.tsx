@@ -149,8 +149,11 @@ export async function MatchesSidebar({
         </Link>
       </div>
 
+      {/* On desktop the list fills the column beside the news module; on a
+          phone there is no such column, so it takes a capped height of its
+          own instead of collapsing to nothing. */}
       <div className="relative min-h-0 flex-1">
-        <div className="absolute inset-0 divide-y divide-fg-faint overflow-y-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="max-h-[65vh] divide-y divide-fg-faint overflow-y-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:absolute lg:inset-0 lg:max-h-none [&::-webkit-scrollbar]:hidden">
           {groups.map(([date, dayMatches]) => (
             <div key={date} className="py-2.5">
               <p className="text-label uppercase tracking-[0.08em] text-fg-muted">

@@ -26,57 +26,64 @@ export function FeaturedNews({ items }: { items: NewsItem[] }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* On a phone the headline sits under the photo instead of over it — an
+          overlay long enough for a four-line title covered the picture. */}
       <a
         href={active.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative block aspect-[4/3] overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-[16/9] lg:aspect-[16/8]"
+        className="group relative block overflow-hidden border border-fg-faint bg-brand-navy sm:aspect-[16/9] lg:aspect-[16/8]"
       >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={active.id}
-            className="absolute inset-0"
-            initial={reduced ? undefined : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reduced ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASE_OUT }}
-          >
-            <Image
-              src={active.image!}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(min-width: 1024px) 65vw, 100vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-            />
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative aspect-[16/10] w-full sm:absolute sm:inset-0 sm:aspect-auto sm:h-full">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={active.id}
+              className="absolute inset-0"
+              initial={reduced ? undefined : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reduced ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.4, ease: EASE_OUT }}
+            >
+              <Image
+                src={active.image!}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(min-width: 1024px) 65vw, 100vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+            </motion.div>
+          </AnimatePresence>
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/10 to-transparent sm:block" />
+        </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-7">
-          <p className="text-label uppercase tracking-[0.08em] text-white/70">
+        <div className="pointer-events-none relative bg-bg-raised p-4 sm:absolute sm:inset-x-0 sm:bottom-0 sm:bg-transparent sm:p-7">
+          <p className="text-label uppercase tracking-[0.08em] text-fg-muted sm:text-white/70">
             {t("latestNews")} · {active.date}
           </p>
-          <p className="mt-2.5 max-w-3xl font-display text-[22px] font-bold leading-snug text-white sm:text-[28px]">
+          <p className="mt-2 max-w-3xl font-display text-[19px] font-bold leading-snug sm:mt-2.5 sm:text-[28px] sm:text-white">
             {active.title}
           </p>
           {active.excerpt && (
-            <p className="mt-2.5 max-w-2xl line-clamp-2 text-[13.5px] leading-relaxed text-white/70 sm:text-[15px]">
+            <p className="mt-2 line-clamp-2 max-w-2xl text-[13px] leading-relaxed text-fg-muted sm:mt-2.5 sm:text-[15px] sm:text-white/70">
               {active.excerpt}
             </p>
           )}
         </div>
       </a>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {/* Phones get a swipeable strip rather than a stack of five cards — the
+          picker stays one thumb-flick tall instead of pushing everything else
+          off the screen. */}
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 lg:grid-cols-5 [&::-webkit-scrollbar]:hidden">
         {slides.map((item, i) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setIndex(i)}
             aria-current={i === index}
-            className={`group flex flex-col border text-left transition-colors duration-200 ${
+            className={`group flex w-[62%] shrink-0 snap-start flex-col border text-left transition-colors duration-200 sm:w-auto sm:shrink ${
               i === index ? "border-accent bg-bg-raised" : "border-fg-faint hover:bg-bg-raised/60"
             }`}
           >

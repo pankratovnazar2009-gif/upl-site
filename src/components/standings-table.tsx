@@ -46,7 +46,10 @@ export async function StandingsTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[560px] border-collapse text-left tabular-nums">
+      {/* Only five columns survive on a phone (position, club, played, GD,
+          points) and they fit its width — the wide minimum is for the full
+          column set from sm up, so mobile never scrolls sideways. */}
+      <table className="w-full border-collapse text-left tabular-nums sm:min-w-[560px]">
         <thead>
           <tr className="border-b border-fg-faint text-label uppercase tracking-[0.1em] text-fg-muted">
             <th className="w-10 py-3 pr-2 font-medium">{t("colPos")}</th>

@@ -264,11 +264,13 @@ export default async function MatchReportPage({
         {hasSquadData && (
           <Reveal>
             <h2 className="font-display text-[20px] font-bold">{t("formationTitle")}</h2>
-            <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.7fr_1fr] lg:items-start lg:gap-6">
-              <div className="order-2 lg:order-1">
+            {/* Both squads sit side by side under the pitch on a phone —
+                stacked, they were two full screens of names to scroll past. */}
+            <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-[1fr_1.7fr_1fr] lg:items-start lg:gap-6">
+              <div className="order-2 col-span-1 lg:order-1">
                 <LineupColumn lineup={report.homeLineup} teamName={report.home.name} />
               </div>
-              <div className="order-1 lg:order-2">
+              <div className="order-1 col-span-2 lg:order-2 lg:col-span-1">
                 <MatchPitch
                   homeFormation={report.homeFormation}
                   awayFormation={report.awayFormation}
@@ -276,7 +278,7 @@ export default async function MatchReportPage({
                   awayName={report.away.name}
                 />
               </div>
-              <div className="order-3 lg:order-3">
+              <div className="order-3 col-span-1 lg:order-3">
                 <LineupColumn lineup={report.awayLineup} teamName={report.away.name} />
               </div>
             </div>
