@@ -12,6 +12,9 @@ import {
 } from "@/lib/upl-source";
 import { LiveBadge } from "@/components/live-badge";
 
+/** Kickoffs shown on a phone before the list is cut off. */
+const MOBILE_LIMIT = 5;
+
 const WEEKDAY_UK = ["НД", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
 const WEEKDAY_EN = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTH_UK = ["СІЧ", "ЛЮТ", "БЕР", "КВІ", "ТРА", "ЧЕР", "ЛИП", "СЕР", "ВЕР", "ЖОВ", "ЛИС", "ГРУ"];
@@ -149,33 +152,48 @@ export async function MatchesSidebar({
         </Link>
       </div>
 
-      {/* On desktop the list fills the column beside the news module; on a
-          phone there is no such column, so it takes a capped height of its
-          own instead of collapsing to nothing. */}
+      {/* On desktop the list fills the column and scrolls through the whole
+          season; a phone gets only the next few kickoffs — scrolling months
+          of fixtures inside the homepage is nobody's idea of a good time —
+          with a link to the full schedule underneath. */}
       <div className="relative min-h-0 flex-1">
-        <div className="max-h-[65vh] divide-y divide-fg-faint overflow-y-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:absolute lg:inset-0 lg:max-h-none [&::-webkit-scrollbar]:hidden">
-          {groups.map(([date, dayMatches]) => (
-            <div key={date} className="py-2.5">
-              <p className="text-label uppercase tracking-[0.08em] text-fg-muted">
-                {dayLabel(date, locale, labels)}
-              </p>
-              <div className="divide-y divide-fg-faint/60">
-                {dayMatches.map((m, i) => (
-                  <MatchRow
-                    key={i}
-                    match={m}
-                    locale={locale}
-                    liveLabel={ts("live")}
-                    broadcasters={broadcasters[reportIdFromUrl(m.reportUrl) ?? -1] ?? []}
-                  />
-                ))}
+        <div className="divide-y divide-fg-faint px-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:absolute lg:inset-0 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden">
+          {groups.map(([date, dayMatches], groupIndex) => {
+            const start = groups
+              .slice(0, groupIndex)
+              .reduce((sum, [, list]) => sum + list.length, 0);
+
+            return (
+              <div key={date} className={`py-2.5 ${start >= MOBILE_LIMIT ? "hidden lg:block" : ""}`}>
+                <p className="text-label uppercase tracking-[0.08em] text-fg-muted">
+                  {dayLabel(date, locale, labels)}
+                </p>
+                <div className="divide-y divide-fg-faint/60">
+                  {dayMatches.map((m, i) => (
+                    <div key={i} className={start + i >= MOBILE_LIMIT ? "hidden lg:block" : ""}>
+                      <MatchRow
+                        match={m}
+                        locale={locale}
+                        liveLabel={ts("live")}
+                        broadcasters={broadcasters[reportIdFromUrl(m.reportUrl) ?? -1] ?? []}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-bg to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-12 bg-gradient-to-t from-bg to-transparent lg:block" />
       </div>
+
+      <Link
+        href="/tournament?tab=schedule"
+        className="border-t border-fg-faint px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-muted transition-colors hover:text-accent lg:hidden"
+      >
+        {t("allMatches")} →
+      </Link>
     </div>
   );
 }
