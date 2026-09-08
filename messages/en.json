@@ -95,10 +95,8 @@
     "squadTitle": "Squad",
     "squadSourceNote": "Squad and photos from the official UPL site",
     "kitsTitle": "Kits",
-    "kitHome": "Home",
-    "kitAway": "Away",
     "kitKeeper": "Goalkeeper",
-    "kitsSourceNote": "The strips the team wore in its most recent matches",
+    "kitsSourceNote": "The strips the team has worn in this season matches",
     "navAbout": "Club",
     "navSquad": "Squad",
     "navKits": "Kits",
@@ -110,7 +108,12 @@
     "resultLoss": "Loss",
     "homeShort": "Home",
     "awayShort": "Away",
-    "squadUnavailable": "Squad temporarily unavailable — the official UPL site did not respond. Try again in a few minutes."
+    "squadUnavailable": "Squad temporarily unavailable — the official UPL site did not respond. Try again in a few minutes.",
+    "kitPrimary": "Primary",
+    "kitSecondary": "Change",
+    "kitThird": "Third",
+    "kitExtra": "Kit",
+    "kitWorn": "· {count} matches"
   },
   "news": {
     "title": "News",

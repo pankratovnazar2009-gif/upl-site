@@ -17,13 +17,16 @@ import { Reveal, RevealItem } from "@/components/motion/reveal";
 import { ClubSectionNav, type ClubSection } from "@/components/club-section-nav";
 import { LegendCard } from "@/components/legend-card";
 
-function KitStrip({ kit, label }: { kit: KitSet; label: string }) {
+function KitStrip({ kit, label, note }: { kit: KitSet; label: string; note?: string }) {
   const pieces = [kit.shirt, kit.shorts, kit.socks].filter((src): src is string => Boolean(src));
   if (pieces.length === 0) return null;
 
   return (
     <div>
-      <p className="text-label uppercase tracking-[0.1em] text-fg-muted">{label}</p>
+      <p className="text-label uppercase tracking-[0.1em] text-fg-muted">
+        {label}
+        {note && <span className="ml-2 normal-case tracking-normal text-fg-faint">{note}</span>}
+      </p>
       <div className="mt-2 flex items-end gap-2 border border-fg-faint bg-bg-raised px-3 py-3">
         {pieces.map((src, i) => (
           <div key={i} className="relative h-20 flex-1">
@@ -165,11 +168,18 @@ export default async function ClubPage({
   const sections: ClubSection[] = [
     { id: "club-about", label: t("navAbout") },
     ...(squadGroups.length > 0 ? [{ id: "club-squad", label: t("navSquad") }] : []),
-    ...(kits.home || kits.away ? [{ id: "club-kits", label: t("navKits") }] : []),
+    ...(kits.outfield.length + kits.keeper.length > 0
+      ? [{ id: "club-kits", label: t("navKits") }]
+      : []),
     ...(recentMatches.length > 0 ? [{ id: "club-results", label: t("navResults") }] : []),
     { id: "club-honours", label: t("navHonours") },
     ...(club.legends.length > 0 ? [{ id: "club-legends", label: t("navLegends") }] : []),
   ];
+
+  // Outfield strips are ranked by how often they were worn, so the most-used
+  // one is the primary kit whether it was worn at home or away.
+  const outfieldLabel = (index: number) =>
+    index === 0 ? t("kitPrimary") : index === 1 ? t("kitSecondary") : index === 2 ? t("kitThird") : `${t("kitExtra")} ${index + 1}`;
 
   const resultLabels = {
     win: t("resultWin"),
@@ -303,21 +313,29 @@ export default async function ClubPage({
         </Reveal>
       )}
 
-      {(kits.home || kits.away) && (
+      {kits.outfield.length + kits.keeper.length > 0 && (
         <Reveal id="club-kits" delay={0.21} className="mt-10 scroll-mt-32 border-t border-fg-faint pt-8">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="font-display text-[20px] font-bold">{t("kitsTitle")}</h2>
             <p className="text-[12px] text-fg-muted">{t("kitsSourceNote")}</p>
           </div>
           <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-            {kits.home && <KitStrip kit={kits.home.outfield} label={t("kitHome")} />}
-            {kits.away && <KitStrip kit={kits.away.outfield} label={t("kitAway")} />}
-            {kits.home && (
-              <KitStrip kit={kits.home.keeper} label={`${t("kitKeeper")} · ${t("kitHome")}`} />
-            )}
-            {kits.away && (
-              <KitStrip kit={kits.away.keeper} label={`${t("kitKeeper")} · ${t("kitAway")}`} />
-            )}
+            {kits.outfield.map((kit, i) => (
+              <KitStrip
+                key={i}
+                kit={kit.set}
+                label={outfieldLabel(i)}
+                note={t("kitWorn", { count: kit.appearances })}
+              />
+            ))}
+            {kits.keeper.map((kit, i) => (
+              <KitStrip
+                key={i}
+                kit={kit.set}
+                label={kits.keeper.length > 1 ? `${t("kitKeeper")} ${i + 1}` : t("kitKeeper")}
+                note={t("kitWorn", { count: kit.appearances })}
+              />
+            ))}
           </div>
         </Reveal>
       )}

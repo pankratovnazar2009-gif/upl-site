@@ -1074,18 +1074,23 @@ export type KitSet = {
   socks: string | null;
 };
 
+/** A distinct strip and how many of this season's matches it was worn in. */
+export type ClubKit = { set: KitSet; appearances: number };
+
 export type ClubKits = {
-  /** As worn in the club's latest home match. */
-  home: { outfield: KitSet; keeper: KitSet } | null;
-  /** As worn in its latest away match — usually the change strip. */
-  away: { outfield: KitSet; keeper: KitSet } | null;
+  outfield: ClubKit[];
+  keeper: ClubKit[];
 };
 
 /**
  * upl.ua draws each team's actual strip on every match report (keeper and
  * outfield, shirt/shorts/socks), so the kits shown here are the ones really
- * worn rather than a product shot scraped off a store. Home and away sets
- * come from the club's most recent match at each venue.
+ * worn rather than a product shot scraped off a store.
+ *
+ * They are gathered across the club's matches and de-duplicated rather than
+ * taken one-per-venue: plenty of sides wear the same strip home and away
+ * (Dynamo have worn white in every fixture so far), which would otherwise
+ * render as two identical "home" and "away" kits.
  */
 function parseKits(
   $: cheerio.CheerioAPI,
@@ -1110,27 +1115,67 @@ export async function getClubKits(
   clubSlug: string,
   rounds: ScheduleRound[],
   locale: "uk" | "en" = "uk",
+  limit = 12,
 ): Promise<ClubKits> {
   const langPath = locale === "en" ? "en" : "ua";
   const played = rounds
     .flatMap((r) => r.matches)
-    .filter((m) => m.status === "finished" && m.reportUrl)
-    .sort((a, b) => parseUplDate(b.date) - parseUplDate(a.date));
+    .filter(
+      (m) =>
+        m.status === "finished" &&
+        m.reportUrl &&
+        (m.homeSlug === clubSlug || m.awaySlug === clubSlug),
+    )
+    .sort((a, b) => parseUplDate(b.date) - parseUplDate(a.date))
+    .slice(0, limit);
 
-  const latest = (side: "home" | "away") =>
-    played.find((m) => (side === "home" ? m.homeSlug : m.awaySlug) === clubSlug);
+  const parsed = await Promise.all(
+    played.map(async (match) => {
+      const reportId = reportIdFromUrl(match.reportUrl);
+      if (!reportId) return null;
+      const html = await fetchHtml(`/${langPath}/report/view/${reportId}/report`, 3600);
+      if (!html) return null;
+      return parseKits(cheerio.load(html), match.homeSlug === clubSlug ? "home" : "away");
+    }),
+  );
 
-  const load = async (side: "home" | "away") => {
-    const match = latest(side);
-    const reportId = match ? reportIdFromUrl(match.reportUrl) : null;
-    if (!reportId) return null;
-    const html = await fetchHtml(`/${langPath}/report/view/${reportId}/report`);
-    if (!html) return null;
-    return parseKits(cheerio.load(html), side);
+  // Grouped by shirt, not by the whole set: clubs routinely pair one shirt
+  // with different shorts (Veres have worn the same shirt with red, black and
+  // white shorts), and that is one kit to a supporter, not three. Each shirt
+  // is shown with the shorts and socks it was worn with most often.
+  const collect = (pick: (kits: { outfield: KitSet; keeper: KitSet }) => KitSet): ClubKit[] => {
+    const groups = new Map<
+      string,
+      { shirt: string | null; appearances: number; shorts: Map<string, number>; socks: Map<string, number> }
+    >();
+
+    for (const kits of parsed) {
+      if (!kits) continue;
+      const set = pick(kits);
+      if (!set.shirt && !set.shorts && !set.socks) continue;
+
+      const key = set.shirt ?? `${set.shorts}|${set.socks}`;
+      const group =
+        groups.get(key) ??
+        { shirt: set.shirt, appearances: 0, shorts: new Map<string, number>(), socks: new Map<string, number>() };
+      group.appearances += 1;
+      if (set.shorts) group.shorts.set(set.shorts, (group.shorts.get(set.shorts) ?? 0) + 1);
+      if (set.socks) group.socks.set(set.socks, (group.socks.get(set.socks) ?? 0) + 1);
+      groups.set(key, group);
+    }
+
+    const mostUsed = (counts: Map<string, number>) =>
+      Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+    return Array.from(groups.values())
+      .sort((a, b) => b.appearances - a.appearances)
+      .map((group) => ({
+        set: { shirt: group.shirt, shorts: mostUsed(group.shorts), socks: mostUsed(group.socks) },
+        appearances: group.appearances,
+      }));
   };
 
-  const [home, away] = await Promise.all([load("home"), load("away")]);
-  return { home, away };
+  return { outfield: collect((k) => k.outfield), keeper: collect((k) => k.keeper) };
 }
 
 export async function getMatchReport(
