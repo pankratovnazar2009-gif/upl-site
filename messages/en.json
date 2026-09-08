@@ -74,7 +74,8 @@
       "europe": "Europa League / Conference League qualification",
       "playoff": "UPL promotion/relegation play-off",
       "relegation": "Relegation — Persha Liha"
-    }
+    },
+    "tabCompare": "Comparison"
   },
   "clubs": {
     "title": "Clubs",
@@ -149,7 +150,10 @@
     "sourceNote": "Lineups, events, and stats synced from the official UPL site",
     "watchOnUplTv": "Watch on UPL.TV",
     "upcomingBody": "Lineups and stats will appear here once the match kicks off.",
-    "watchOn": "Watch on {channel}"
+    "watchOn": "Watch on {channel}",
+    "h2hTitle": "Head-to-head",
+    "h2hDraws": "Draws",
+    "h2hNote": "From the UPL calendar archive"
   },
   "footer": {
     "org": "UPL",
@@ -184,5 +188,51 @@
     "noStats": "This player hasn't featured yet this season.",
     "sourceNote": "Photo and stats from the official UPL site",
     "profileLink": "Profile on upl.ua"
+  },
+  "compare": {
+    "title": "Team comparison",
+    "pickA": "First team",
+    "pickB": "Second team",
+    "points": "Points",
+    "ppg": "Points per game",
+    "wins": "Wins",
+    "draws": "Draws",
+    "losses": "Losses",
+    "goalsFor": "Goals for",
+    "goalsAgainst": "Goals against",
+    "goalsForPerGame": "Scored per game",
+    "goalsAgainstPerGame": "Conceded per game",
+    "cleanSheets": "Clean sheets",
+    "failedToScore": "Failed to score",
+    "homePoints": "Home points",
+    "awayPoints": "Away points",
+    "form": "Form",
+    "h2hTitle": "Head-to-head",
+    "h2hLoading": "Loading previous meetings…",
+    "h2hEmpty": "These clubs have not met in the available UPL archive.",
+    "drawsShort": "Draws",
+    "sourceNote": "Every metric is computed from this season UPL results; head-to-head comes from the upl.ua calendar archive. The UPL publishes no possession, shot or xG data, so those are not shown."
+  },
+  "filters": {
+    "club": "Club",
+    "month": "Date",
+    "status": "Status",
+    "allClubs": "All clubs",
+    "allDates": "Whole season",
+    "allMatches": "All matches",
+    "upcoming": "Upcoming",
+    "played": "Played",
+    "reset": "Reset",
+    "found": "Matches found: {count}",
+    "empty": "No matches for these filters."
+  },
+  "vote": {
+    "title": "Vote of the round",
+    "roundLabel": "Round {round}",
+    "tabPlayer": "Player of the round",
+    "tabCoach": "Coach of the round",
+    "goals": "goals: {count}",
+    "hint": "Pick your favourite — your vote is stored in this browser.",
+    "thanks": "Thanks for voting! The shares shown include your pick."
   }
 }

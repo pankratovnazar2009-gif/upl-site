@@ -1,7 +1,15 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getStandings, getSchedule, getFeaturedNews, findCurrentRound, getUpcomingMatches } from "@/lib/upl-source";
+import {
+  getStandings,
+  getSchedule,
+  getFeaturedNews,
+  findCurrentRound,
+  getUpcomingMatches,
+  getRoundAwards,
+} from "@/lib/upl-source";
+import { RoundVote } from "@/components/round-vote";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
 import { clubs } from "@/data/clubs";
 import { partners } from "@/data/partners";
@@ -26,6 +34,7 @@ export default async function HomePage() {
   const scheduleData = schedule ?? scheduleFallback;
   const currentRound = findCurrentRound(scheduleData.rounds);
   const upcomingMatches = getUpcomingMatches(scheduleData.rounds);
+  const awards = await getRoundAwards(scheduleData.rounds, locale);
 
   return (
     <div>
@@ -68,6 +77,17 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* Round vote — a light interactive aside, deliberately kept small */}
+      {awards && (
+        <section className="border-t border-fg-faint">
+          <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y-dense)">
+            <Reveal className="mx-auto max-w-[560px]">
+              <RoundVote awards={awards} />
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* Partners */}
       <section className="border-t border-fg-faint">

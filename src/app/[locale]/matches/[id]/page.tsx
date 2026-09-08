@@ -2,7 +2,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getMatchReport, type MatchReportSide, type MatchTeamLineup } from "@/lib/upl-source";
+import {
+  getMatchReport,
+  getHeadToHead,
+  type HeadToHead,
+  type MatchReportSide,
+  type MatchTeamLineup,
+} from "@/lib/upl-source";
 import { Reveal } from "@/components/motion/reveal";
 import { MatchPitch } from "@/components/match-report/match-pitch";
 import { MatchTimeline } from "@/components/match-report/match-timeline";
@@ -77,6 +83,70 @@ function LineupColumn({ lineup, teamName }: { lineup: MatchTeamLineup; teamName:
   );
 }
 
+/** Previous meetings between the two sides — the pre-match context a fixture page is missing. */
+function HeadToHeadBlock({
+  meetings,
+  homeSlug,
+  homeName,
+  awayName,
+  drawsLabel,
+}: {
+  meetings: HeadToHead["meetings"];
+  homeSlug: string;
+  homeName: string;
+  awayName: string;
+  drawsLabel: string;
+}) {
+  // Tallied over the meetings actually listed, so the numbers never count the
+  // fixture you are currently looking at.
+  let homeWins = 0;
+  let draws = 0;
+  let awayWins = 0;
+  for (const meeting of meetings) {
+    const homeIsThisPageHome = meeting.homeSlug === homeSlug;
+    const own = homeIsThisPageHome ? meeting.score.home : meeting.score.away;
+    const opp = homeIsThisPageHome ? meeting.score.away : meeting.score.home;
+    if (own > opp) homeWins += 1;
+    else if (own < opp) awayWins += 1;
+    else draws += 1;
+  }
+
+  const cells = [
+    { value: homeWins, label: homeName },
+    { value: draws, label: drawsLabel },
+    { value: awayWins, label: awayName },
+  ];
+
+  return (
+    <div>
+      <div className="grid grid-cols-3 border border-fg-faint">
+        {cells.map((cell, i) => (
+          <div key={i} className={`px-3 py-4 text-center ${i === 1 ? "border-x border-fg-faint" : ""}`}>
+            <p className="font-display text-[26px] font-bold leading-none tabular-nums">{cell.value}</p>
+            <p className="mt-2 truncate text-[11.5px] text-fg-muted">{cell.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 flex flex-col divide-y divide-fg-faint/60">
+        {meetings.map((meeting, i) => (
+          <div key={i} className="flex items-center gap-3 py-2.5 text-[13px]">
+            <span className="w-[70px] shrink-0 text-fg-muted tabular-nums">{meeting.season}</span>
+            <span className="min-w-0 flex-1 truncate text-right font-medium">{meeting.homeName}</span>
+            <span className="font-display shrink-0 px-2 font-bold tabular-nums">
+              {meeting.score.home}:{meeting.score.away}
+            </span>
+            <span className="min-w-0 flex-1 truncate font-medium">{meeting.awayName}</span>
+            <span className="hidden w-[84px] shrink-0 text-right text-fg-muted tabular-nums sm:block">
+              {meeting.date}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function MatchReportPage({
   params,
 }: {
@@ -104,6 +174,11 @@ export default async function MatchReportPage({
     report.awayLineup.starting.length > 0;
   const isUpcoming = !report.score;
   const watchLinks = report.broadcasters.filter((b) => b.url);
+  const h2h =
+    report.home.slug && report.away.slug
+      ? await getHeadToHead(report.home.slug, report.away.slug)
+      : null;
+  const h2hMeetings = h2h?.meetings.filter((m) => m.reportId !== numericId) ?? [];
 
   return (
     <div>
@@ -211,6 +286,24 @@ export default async function MatchReportPage({
         {!hasSquadData && isUpcoming && (
           <Reveal className="border border-fg-faint px-6 py-12 text-center">
             <p className="text-[15px] text-fg-muted">{t("upcomingBody")}</p>
+          </Reveal>
+        )}
+
+        {h2h && h2hMeetings.length > 0 && (
+          <Reveal delay={0.12} className={`${hasSquadData || isUpcoming ? "mt-12 border-t border-fg-faint pt-8" : ""}`}>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display text-[20px] font-bold">{t("h2hTitle")}</h2>
+              <p className="text-[12px] text-fg-muted">{t("h2hNote")}</p>
+            </div>
+            <div className="mt-5">
+              <HeadToHeadBlock
+                meetings={h2hMeetings}
+                homeSlug={report.home.slug!}
+                homeName={report.home.name}
+                awayName={report.away.name}
+                drawsLabel={t("h2hDraws")}
+              />
+            </div>
           </Reveal>
         )}
 

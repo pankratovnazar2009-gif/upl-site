@@ -1,6 +1,14 @@
 import { getTranslations } from "next-intl/server";
-import { getStandings, getSchedule, findCurrentRound, computeSplitStandings } from "@/lib/upl-source";
+import {
+  getStandings,
+  getSchedule,
+  findCurrentRound,
+  computeSplitStandings,
+  getClubMetrics,
+} from "@/lib/upl-source";
+import { clubs } from "@/data/clubs";
 import { standingsFallback, scheduleFallback } from "@/data/fallback";
+import { TeamCompare } from "@/components/team-compare";
 import { StandingsTable } from "@/components/standings-table";
 import { StandingsSplitTabs } from "@/components/standings-split-tabs";
 import { ScheduleBrowser } from "@/components/schedule-browser";
@@ -29,6 +37,15 @@ export default async function TournamentPage({
     ? scheduleData.rounds.findIndex((r) => r.round === currentRound.round)
     : 0;
 
+  // Season metrics for every club come straight off the fixtures we already
+  // have, so the comparison tab costs no extra requests.
+  const metrics = Object.fromEntries(
+    clubs.map((club) => [club.slug, getClubMetrics(scheduleData.rounds, club.slug)]),
+  );
+  const ranked = standingsData.rows.filter((row) => row.slug);
+  const defaultA = ranked[0]?.slug ?? clubs[0].slug;
+  const defaultB = ranked[1]?.slug ?? clubs[1].slug;
+
   return (
     <div className="mx-auto max-w-[1000px] px-(--gutter) py-(--section-y-dense)">
       <Reveal>
@@ -45,7 +62,7 @@ export default async function TournamentPage({
 
       <div className="mt-12">
         <TournamentTabs
-          initialTab={tab === "schedule" ? "schedule" : "table"}
+          initialTab={tab === "schedule" ? "schedule" : tab === "compare" ? "compare" : "table"}
           tableSlot={
             <StandingsSplitTabs
               overallSlot={<StandingsTable rows={standingsData.rows} showLegend />}
@@ -58,6 +75,9 @@ export default async function TournamentPage({
               rounds={scheduleData.rounds}
               initialRoundIndex={currentIndex === -1 ? 0 : currentIndex}
             />
+          }
+          compareSlot={
+            <TeamCompare metrics={metrics} defaultA={defaultA} defaultB={defaultB} />
           }
         />
       </div>

@@ -15,6 +15,8 @@ import { clubs } from "@/data/clubs";
 const BASE = "https://upl.ua";
 const FALLBACK_SEASON_ID = 432; // 2026/27 — used only if season-id lookup fails
 const REVALIDATE_SECONDS = 300;
+/** Finished seasons never change — poll the archive at most once a day. */
+const ARCHIVE_REVALIDATE = 86_400;
 
 const FETCH_HEADERS = {
   "User-Agent":
@@ -24,11 +26,15 @@ const FETCH_HEADERS = {
 const uplIdToSlug = new Map(clubs.map((c) => [c.uplId, c.slug]));
 const nameToSlug = new Map(clubs.map((c) => [c.name.uk, c.slug]));
 
-async function fetchHtml(path: string, attempt = 0): Promise<string | null> {
+async function fetchHtml(
+  path: string,
+  revalidate: number = REVALIDATE_SECONDS,
+  attempt = 0,
+): Promise<string | null> {
   try {
     const res = await fetch(`${BASE}${path}`, {
       headers: FETCH_HEADERS,
-      next: { revalidate: REVALIDATE_SECONDS },
+      next: { revalidate },
     });
     if (!res.ok) throw new Error(String(res.status));
     return await res.text();
@@ -38,7 +44,7 @@ async function fetchHtml(path: string, attempt = 0): Promise<string | null> {
     // being cached for an hour with an empty squad.
     if (attempt < 2) {
       await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
-      return fetchHtml(path, attempt + 1);
+      return fetchHtml(path, revalidate, attempt + 1);
     }
     return null;
   }
@@ -136,7 +142,12 @@ export async function getSchedule(): Promise<ScheduleResult | null> {
     `/ua/tournaments/championship/${seasonId}/calendar`,
   );
   if (!html) return null;
+  const rounds = parseCalendar(html);
+  if (rounds.length === 0) return null;
+  return { rounds, fetchedAt: new Date().toISOString(), seasonId };
+}
 
+function parseCalendar(html: string): ScheduleRound[] {
   const $ = cheerio.load(html);
   const rounds: ScheduleRound[] = [];
 
@@ -183,8 +194,7 @@ export async function getSchedule(): Promise<ScheduleResult | null> {
     if (matches.length > 0) rounds.push({ round, matches });
   });
 
-  if (rounds.length === 0) return null;
-  return { rounds, fetchedAt: new Date().toISOString(), seasonId };
+  return rounds;
 }
 
 function parseUplDate(date: string): number {
@@ -357,6 +367,208 @@ export function getClubRecentMatches(
     .filter((m) => m.status === "finished" && (m.homeSlug === clubSlug || m.awaySlug === clubSlug))
     .sort((a, b) => parseUplDate(b.date) - parseUplDate(a.date))
     .slice(0, count);
+}
+
+/**
+ * Season-long metrics for one club, derived entirely from the fixtures we
+ * already have. upl.ua publishes no possession/xG/shot data anywhere on the
+ * site, so the comparison tool is built from what is actually recorded:
+ * results, goals and their distribution.
+ */
+export type ClubMetrics = {
+  slug: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  points: number;
+  pointsPerGame: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDiff: number;
+  goalsForPerGame: number;
+  goalsAgainstPerGame: number;
+  cleanSheets: number;
+  failedToScore: number;
+  homePoints: number;
+  awayPoints: number;
+  biggestWin: { label: string; margin: number } | null;
+  /** Most recent first, newest 5 results. */
+  form: Array<"win" | "draw" | "loss">;
+};
+
+export function getClubMetrics(rounds: ScheduleRound[], clubSlug: string): ClubMetrics {
+  const matches = rounds
+    .flatMap((r) => r.matches)
+    .filter(
+      (m) => m.status === "finished" && m.score && (m.homeSlug === clubSlug || m.awaySlug === clubSlug),
+    )
+    .sort((a, b) => parseUplDate(a.date) - parseUplDate(b.date));
+
+  const metrics: ClubMetrics = {
+    slug: clubSlug,
+    played: 0,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    points: 0,
+    pointsPerGame: 0,
+    goalsFor: 0,
+    goalsAgainst: 0,
+    goalDiff: 0,
+    goalsForPerGame: 0,
+    goalsAgainstPerGame: 0,
+    cleanSheets: 0,
+    failedToScore: 0,
+    homePoints: 0,
+    awayPoints: 0,
+    biggestWin: null,
+    form: [],
+  };
+
+  const form: Array<"win" | "draw" | "loss"> = [];
+
+  for (const match of matches) {
+    const isHome = match.homeSlug === clubSlug;
+    const own = isHome ? match.score!.home : match.score!.away;
+    const opp = isHome ? match.score!.away : match.score!.home;
+    const outcome = own > opp ? "win" : own < opp ? "loss" : "draw";
+    const gained = outcome === "win" ? 3 : outcome === "draw" ? 1 : 0;
+
+    metrics.played += 1;
+    metrics.goalsFor += own;
+    metrics.goalsAgainst += opp;
+    metrics.points += gained;
+    if (isHome) metrics.homePoints += gained;
+    else metrics.awayPoints += gained;
+    if (outcome === "win") metrics.wins += 1;
+    else if (outcome === "draw") metrics.draws += 1;
+    else metrics.losses += 1;
+    if (opp === 0) metrics.cleanSheets += 1;
+    if (own === 0) metrics.failedToScore += 1;
+
+    if (outcome === "win" && (!metrics.biggestWin || own - opp > metrics.biggestWin.margin)) {
+      metrics.biggestWin = { label: `${own}:${opp}`, margin: own - opp };
+    }
+
+    form.push(outcome);
+  }
+
+  metrics.goalDiff = metrics.goalsFor - metrics.goalsAgainst;
+  if (metrics.played > 0) {
+    metrics.pointsPerGame = metrics.points / metrics.played;
+    metrics.goalsForPerGame = metrics.goalsFor / metrics.played;
+    metrics.goalsAgainstPerGame = metrics.goalsAgainst / metrics.played;
+  }
+  metrics.form = form.slice(-5).reverse();
+
+  return metrics;
+}
+
+export type SeasonOption = { id: number; label: string };
+
+/** The season picker upl.ua renders on its calendar page — newest first. */
+export async function getSeasonOptions(): Promise<SeasonOption[]> {
+  const seasonId = await getCurrentSeasonId();
+  const html = await fetchHtml(`/ua/tournaments/championship/${seasonId}/calendar`, ARCHIVE_REVALIDATE);
+  if (!html) return [];
+
+  const $ = cheerio.load(html);
+  const options: SeasonOption[] = [];
+  $("select option").each((_, el) => {
+    const id = Number($(el).attr("value"));
+    const label = $(el).text().trim();
+    if (Number.isFinite(id) && label) options.push({ id, label });
+  });
+  return options;
+}
+
+export type H2HMeeting = {
+  season: string;
+  date: string;
+  homeSlug: string | null;
+  homeName: string;
+  awaySlug: string | null;
+  awayName: string;
+  score: { home: number; away: number };
+  reportId: number | null;
+};
+
+export type HeadToHead = {
+  meetings: H2HMeeting[];
+  aWins: number;
+  draws: number;
+  bWins: number;
+  aGoals: number;
+  bGoals: number;
+  seasonsCovered: number;
+};
+
+/**
+ * Previous meetings between two clubs, walking back through upl.ua's season
+ * archive. Archive pages never change, so they are cached for a day.
+ */
+export async function getHeadToHead(
+  slugA: string,
+  slugB: string,
+  seasonsBack = 6,
+  limit = 8,
+): Promise<HeadToHead> {
+  const seasons = (await getSeasonOptions()).slice(0, seasonsBack);
+  const result: HeadToHead = {
+    meetings: [],
+    aWins: 0,
+    draws: 0,
+    bWins: 0,
+    aGoals: 0,
+    bGoals: 0,
+    seasonsCovered: seasons.length,
+  };
+
+  for (const season of seasons) {
+    const html = await fetchHtml(
+      `/ua/tournaments/championship/${season.id}/calendar`,
+      ARCHIVE_REVALIDATE,
+    );
+    if (!html) continue;
+
+    for (const round of parseCalendar(html)) {
+      for (const match of round.matches) {
+        if (match.status !== "finished" || !match.score) continue;
+        const pair = [match.homeSlug, match.awaySlug];
+        if (!pair.includes(slugA) || !pair.includes(slugB)) continue;
+
+        result.meetings.push({
+          season: season.label,
+          date: match.date,
+          homeSlug: match.homeSlug,
+          homeName: match.homeName,
+          awaySlug: match.awaySlug,
+          awayName: match.awayName,
+          score: match.score,
+          reportId: reportIdFromUrl(match.reportUrl),
+        });
+      }
+    }
+
+    if (result.meetings.length >= limit) break;
+  }
+
+  result.meetings.sort((x, y) => parseUplDate(y.date) - parseUplDate(x.date));
+  result.meetings = result.meetings.slice(0, limit);
+
+  for (const meeting of result.meetings) {
+    const aHome = meeting.homeSlug === slugA;
+    const aGoals = aHome ? meeting.score.home : meeting.score.away;
+    const bGoals = aHome ? meeting.score.away : meeting.score.home;
+    result.aGoals += aGoals;
+    result.bGoals += bGoals;
+    if (aGoals > bGoals) result.aWins += 1;
+    else if (aGoals < bGoals) result.bWins += 1;
+    else result.draws += 1;
+  }
+
+  return result;
 }
 
 /** The chronologically nearest match that hasn't been played yet, anywhere in the schedule. */
@@ -924,9 +1136,10 @@ export async function getClubKits(
 export async function getMatchReport(
   id: number,
   locale: "uk" | "en" = "uk",
+  revalidate: number = REVALIDATE_SECONDS,
 ): Promise<MatchReport | null> {
   const langPath = locale === "en" ? "en" : "ua";
-  const html = await fetchHtml(`/${langPath}/report/view/${id}/report`);
+  const html = await fetchHtml(`/${langPath}/report/view/${id}/report`, revalidate);
   if (!html) return null;
 
   const $ = cheerio.load(html);
@@ -1030,4 +1243,97 @@ export async function getMatchReport(
     reviewUrl: `${BASE}/${langPath}/report/view/${id}/review`,
     sourceUrl: `${BASE}/${langPath}/report/view/${id}/report`,
   };
+}
+
+export type AwardNominee = {
+  /** Stable id so a vote survives a re-render: club slug + name. */
+  id: string;
+  name: string;
+  clubSlug: string | null;
+  clubName: string;
+  detail: string;
+};
+
+export type RoundAwards = {
+  round: number;
+  players: AwardNominee[];
+  coaches: AwardNominee[];
+};
+
+/**
+ * Nominees for the "of the round" vote, taken from the last completed round:
+ * the players who scored in it, and the coaches whose sides won. upl.ua has
+ * no ratings feed, so goals and results are the only defensible shortlist.
+ */
+export async function getRoundAwards(
+  rounds: ScheduleRound[],
+  locale: "uk" | "en" = "uk",
+): Promise<RoundAwards | null> {
+  const finished = [...rounds]
+    .reverse()
+    .find((r) => r.matches.some((m) => m.status === "finished"));
+  if (!finished) return null;
+
+  const ids = finished.matches
+    .filter((m) => m.status === "finished")
+    .map((m) => reportIdFromUrl(m.reportUrl))
+    .filter((id): id is number => id !== null);
+
+  // One round is at most eight fixtures, and a finished round stops changing,
+  // so these are cached for an hour rather than the usual five minutes.
+  const reports = (
+    await Promise.all(ids.map((id) => getMatchReport(id, locale, 3600)))
+  ).filter((r): r is MatchReport => r !== null);
+
+  const scorers = new Map<string, AwardNominee & { goals: number }>();
+  const coaches: AwardNominee[] = [];
+
+  for (const report of reports) {
+    if (!report.score) continue;
+
+    for (const event of report.events) {
+      if (event.kind !== "goal") continue;
+      const side = event.side === "home" ? report.home : report.away;
+      const name = event.players[0];
+      if (!name) continue;
+      const id = `${side.slug ?? side.name}-${name}`;
+      const existing = scorers.get(id);
+      if (existing) existing.goals += 1;
+      else
+        scorers.set(id, {
+          id,
+          name,
+          clubSlug: side.slug,
+          clubName: side.name,
+          detail: "",
+          goals: 1,
+        });
+    }
+
+    const homeWon = report.score.home > report.score.away;
+    const awayWon = report.score.away > report.score.home;
+    const winner = homeWon
+      ? { side: report.home, lineup: report.homeLineup, score: `${report.score.home}:${report.score.away}` }
+      : awayWon
+        ? { side: report.away, lineup: report.awayLineup, score: `${report.score.away}:${report.score.home}` }
+        : null;
+
+    if (winner?.lineup.coach) {
+      coaches.push({
+        id: `${winner.side.slug ?? winner.side.name}-${winner.lineup.coach}`,
+        name: winner.lineup.coach,
+        clubSlug: winner.side.slug,
+        clubName: winner.side.name,
+        detail: winner.score,
+      });
+    }
+  }
+
+  const players = Array.from(scorers.values())
+    .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name))
+    .slice(0, 6)
+    .map(({ goals, ...nominee }) => ({ ...nominee, detail: String(goals) }));
+
+  if (players.length === 0 && coaches.length === 0) return null;
+  return { round: finished.round, players, coaches: coaches.slice(0, 6) };
 }
