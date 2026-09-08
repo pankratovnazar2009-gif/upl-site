@@ -51,18 +51,38 @@ export default async function LocaleLayout({
     >
       <head>
         {/*
-          Marks the document as JS-capable before first paint. Scroll reveals
-          hide their content in CSS and that hidden state is scoped to this
-          flag, so a slow, blocked or broken bundle leaves the page fully
-          visible instead of stuck at opacity 0.
+          Two jobs, both before first paint and both independent of the app
+          bundle — this is deliberately plain inline script, not a component:
+
+          1. `js` marks the document as JS-capable. Scroll reveals hide their
+             content in CSS and that hidden state is scoped to this flag, so a
+             slow, blocked or broken bundle leaves the page fully visible
+             instead of stuck at opacity 0.
+          2. `splash-done` dismisses the intro overlay as soon as the page has
+             actually loaded (never before ~550ms, so it doesn't flash, and
+             never after 1.5s, so a slow image can't hold the site hostage).
+             The overlay is then taken out of the layout outright, so a
+             browser that never runs the fade cannot leave it covering the
+             page; with this script gone, its own CSS timeline still hides it.
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: "document.documentElement.classList.add('js')",
+            __html: `(function(){var d=document.documentElement;d.classList.add('js');var s=Date.now(),hidden=false;function hide(){if(hidden)return;hidden=true;d.classList.add('splash-done');setTimeout(function(){var el=document.getElementById('splash');if(el)el.style.display='none'},450)}function done(){setTimeout(hide,Math.max(0,550-(Date.now()-s)))}if(document.readyState==='complete'){done()}else{addEventListener('load',done,{once:true})}setTimeout(hide,1500)})()`,
           }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-bg text-fg">
+        {/*
+          Branded intro. Static markup with a CSS-only timeline: no counter, no
+          JS-driven progress, nothing that can freeze mid-way — the previous
+          version animated a percentage on requestAnimationFrame and stuck at
+          0% whenever the browser throttled frames.
+        */}
+        <div id="splash" aria-hidden="true">
+          <span className="splash-mark" />
+          <span className="splash-bar" />
+        </div>
+
         <NextIntlClientProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>

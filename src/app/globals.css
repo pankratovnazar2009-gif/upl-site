@@ -179,6 +179,85 @@ body {
 }
 
 /*
+ * Branded intro overlay.
+ *
+ * The whole timeline is CSS: the panel fades itself out after 1.4s whatever
+ * else happens, and the inline script in the layout only ever shortens that
+ * by adding `.splash-done` once the page has really loaded. Nothing here can
+ * stall — there is no counter and no frame-driven progress.
+ */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: var(--brand-navy);
+  animation: splash-out 0.45s var(--ease-inout) 1.4s forwards;
+}
+.splash-done #splash {
+  animation: splash-out 0.4s var(--ease-inout) forwards;
+}
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.splash-mark {
+  width: 84px;
+  height: 84px;
+  background: url("/logos/upl-mark.svg") center / contain no-repeat;
+  animation: splash-mark-in 0.7s var(--ease-out) both;
+}
+@keyframes splash-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Indeterminate sweep — it reports "working", not a made-up percentage. */
+.splash-bar {
+  position: relative;
+  width: 128px;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+}
+.splash-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(-100%);
+  animation: splash-sweep 1.1s var(--ease-inout) infinite;
+}
+@keyframes splash-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* An intro is a flourish — skip it entirely when motion is unwelcome. */
+@media (prefers-reduced-motion: reduce) {
+  #splash {
+    display: none;
+  }
+}
+
+/*
  * Image skeleton — a loading shimmer behind news and hero photos, so a
  * pending image reads as loading rather than as a broken dark rectangle.
  * The image paints on top of it; the animation stops after a few passes
